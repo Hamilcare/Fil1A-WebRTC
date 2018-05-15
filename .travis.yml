@@ -1,0 +1,6 @@
+language: csharp
+solution: FIL1A-Kinect-To-WebRTC.sln
+mono: none
+dotnet: 2.1.200
+script:
+ - dotnet restore
