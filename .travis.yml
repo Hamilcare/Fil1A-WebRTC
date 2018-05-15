@@ -3,7 +3,6 @@ solution: FIL1A-Kinect-To-WebRTC.sln
 mono: none
 dotnet: 2.1.200
 install:
- - nuget restore FIL1A-Kinect-To-WebRTC.sln
  - dotnet restore
 script:
  - dotnet build
