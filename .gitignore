@@ -1,8 +1,8 @@
 bin/
 obj/
 packages/
-tutoQuentin/
 .git
+.vs
 .idea/
 *.userprefs
 /packages/
