@@ -1,1 +1,2 @@
-# Client léger pour affichage flux Kinect
+# Client  pour affichage flux Kinect
+``client javascript``
