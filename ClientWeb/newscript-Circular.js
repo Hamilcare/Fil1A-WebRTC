@@ -66,7 +66,7 @@ function generatePoint(pointTab){
       myCloud[CloudNumberPointer].vertices.push(vertex);
     
     //Instantation de la couleur en RGB 
-        var color = new THREE.Color("rgb("+pointTab[i+3]+","+pointTab[i+4]+","+pointTab[i+5]+")");
+    var color = new THREE.Color("rgb("+pointTab[i+3]+","+pointTab[i+4]+","+pointTab[i+5]+")");
 
     //Envoie des couleurs dans la Geometry
         myCloud[CloudNumberPointer].colors.push(color);
