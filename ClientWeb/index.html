@@ -1,21 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
+    <meta charset="utf-8">
     <title>Theia_VR - ClientWeb</title>
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <style>
+        body{
+            padding-top: 5rem;
+        }
+        #outgoing {
+            width: 600px;
+            word-wrap: break-word;
+        }
+    </style>
 </head>
 
-<body>
-    <nav class="navbar navbar-fixed-top navbar-dark bg-inverse">
+<body id="page-top">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
         <a class="navbar-brand" href="#">Theia_VR</a>
     </nav>
 
     <div class="container">
         <div class="row">
-            Test
+            <button id="start" type="button" class="btn btn-primary">Demarrer</button>
+            <form>
+                <textarea id="incoming"></textarea>
+                <button type="submit">submit</button>
+            </form>
+            <pre id="outgoing"></pre>
         </div>
     </div>
+
+
+    <script src="simplePeer.js"></script>
+    <script src="app.js"></script>
 
 </body>
 </html>
