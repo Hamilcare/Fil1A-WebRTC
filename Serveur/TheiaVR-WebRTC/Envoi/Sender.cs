@@ -1,18 +1,18 @@
 ﻿using Org.WebRtc;
 using System.Diagnostics;
 using System.Collections.Generic;
-using System.Net.WebSockets;
 using Windows.ApplicationModel.Core;
 using Windows.Networking.Sockets;
-using System;
-using System.Text;
 using Windows.Storage.Streams;
+using Windows.Data.Json;
+using System;
 
 namespace Envoi
 {
     public class Sender
     {
         private MessageWebSocket signalingChannel;
+        private DataWriter dataWriter;
         private IList<RTCIceServer> iceList;
         private RTCConfiguration rtcConfiguration;
         private RTCPeerConnection peerConnection;
@@ -22,18 +22,16 @@ namespace Envoi
         {
             Debug.WriteLine("Sender Test");
 
-            WebRTC.Initialize(CoreApplication.MainView.CoreWindow.Dispatcher);
+            WebRTC.Initialize(null);
 
             signalingChannel = new MessageWebSocket();
             signalingChannel.ConnectAsync(new Uri("ws://barnab2.tk:9090")).AsTask().Wait();
+            //signalingChannel.MessageReceived += MessageReceived;
+
+            dataWriter = new DataWriter();
 
             // Test send over websocket
-            /*string coucou = "{\"type\":\"login\", \"name\":\"cedric2\"}";
-            Windows.Storage.Streams.IBuffer buffer;
-            DataWriter dataWriter = new DataWriter();
-            dataWriter.WriteString(coucou);
-            buffer = dataWriter.DetachBuffer();
-            signalingChannel.OutputStream.WriteAsync(buffer);*/
+            //string coucou = "{\"type\":\"login\", \"name\":\"cedric2\"}";
 
             iceList = new List<RTCIceServer>
             {
@@ -45,21 +43,14 @@ namespace Envoi
                 new RTCIceServer() { Url = "stun:stun4.l.google.com:19302" }
             };
 
-            startRTC(true);
+            //rtcDataChannel.OnError += delegate { Debug.WriteLine("Channel error"); };
+            //rtcDataChannel.OnOpen += delegate { Debug.WriteLine("Channel open"); };
+            //rtcDataChannel.OnClose += delegate { Debug.WriteLine("Channel close"); };
 
-            rtcDataChannel.OnError += delegate { Debug.WriteLine("Channel error"); };
-            rtcDataChannel.OnOpen += delegate { Debug.WriteLine("Channel open"); };
-            rtcDataChannel.OnClose += delegate { Debug.WriteLine("Channel close"); };
-
-            signalingChannel.MessageReceived += delegate (MessageWebSocket eventSource, MessageWebSocketMessageReceivedEventArgs eventData)
-            {
-                OnMessageHandler(eventData);
-            };
-
-            
+            StartRTC(true);
         }
 
-        private void startRTC(bool isInitiator)
+        private void StartRTC(bool isInitiator)
         {
             rtcConfiguration = new RTCConfiguration()
             {
@@ -69,16 +60,37 @@ namespace Envoi
             };
             peerConnection = new RTCPeerConnection(rtcConfiguration);
 
-            peerConnection.OnIceCandidate += delegate (RTCPeerConnectionIceEvent candidate)
+            peerConnection.OnIceCandidate += (RTCPeerConnectionIceEvent candidate) =>
             {
-                //signalingChannel.OutputStream.WriteAsync();
-                // TO DO buffer de JSON.stringify({ candidate: evt.candidate })
+                try
+                {
+                    dataWriter.WriteString("{\"candidate\":" + candidate.Candidate);
+                    signalingChannel.OutputStream.WriteAsync(dataWriter.DetachBuffer());
+
+                    Debug.WriteLine("Candidate success");
+                } catch (Exception e)
+                {
+                    Debug.WriteLine("Candidate fail : " + e.Message);
+                }
+                
             };
 
             peerConnection.OnNegotiationNeeded += delegate
             {
-                peerConnection.CreateOffer();
-                // setLocalDescription(offer); ????
+                try
+                {
+                    peerConnection.CreateOffer();
+                    peerConnection.SetLocalDescription(peerConnection.RemoteDescription);
+
+                    dataWriter.WriteString("{\"desc\":" + peerConnection.LocalDescription);
+                    signalingChannel.OutputStream.WriteAsync(dataWriter.DetachBuffer());
+
+                    Debug.WriteLine("Negociation success");
+                } catch (Exception e)
+                {
+                    Debug.WriteLine("Negociation fail : " + e.Message);
+                }
+                
             };
 
             if (isInitiator)
@@ -88,24 +100,50 @@ namespace Envoi
             }
             else
             {
-                peerConnection.OnDataChannel += delegate(RTCDataChannelEvent dataChannel)
+                peerConnection.OnDataChannel += (RTCDataChannelEvent dataChannel) =>
                 {
                     rtcDataChannel = dataChannel.Channel;
                     // TO DO à l'ouverture du channel
                 };
             }
-
-            Debug.WriteLine(rtcDataChannel.ReadyState);
         }
 
-        private void OnMessageHandler(MessageWebSocketMessageReceivedEventArgs messageEvent)
+        private void MessageReceived(MessageWebSocket sender, MessageWebSocketMessageReceivedEventArgs args)
         {
-            if (peerConnection == null)
+            try
             {
-                startRTC(false);
+                using (DataReader reader = args.GetDataReader())
+                {
+                    if (peerConnection == null)
+                    {
+                        StartRTC(false);
+                    }
+
+                    var message = JsonObject.Parse(args.GetDataReader().ReadString(reader.UnconsumedBufferLength));
+                    if (message.GetNamedValue("desc") != null)
+                    {
+                        var desc = message.GetNamedValue("desc");
+
+                        if (desc.GetString() == "offer")
+                        {
+                            peerConnection.SetRemoteDescription(peerConnection.RemoteDescription);
+                            peerConnection.CreateAnswer();
+                            peerConnection.SetLocalDescription(peerConnection.RemoteDescription);
+
+                            dataWriter.WriteString("{\"desc\":" + peerConnection.LocalDescription);
+                            signalingChannel.OutputStream.WriteAsync(dataWriter.DetachBuffer());
+                        }
+                    }
+                    else
+                    {
+                        peerConnection.AddIceCandidate(new RTCIceCandidate() { Candidate = message.GetNamedValue("desc").GetString() });
+                    }
+                }
             }
-            
-            // TO DO handle offer
+            catch (Exception e)
+            {
+                
+            }
         }
 
         private void SetupSender()
