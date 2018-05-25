@@ -1,11 +1,10 @@
 ﻿using Org.WebRtc;
+using System;
 using System.Diagnostics;
 using System.Collections.Generic;
-using Windows.ApplicationModel.Core;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
-using Windows.Data.Json;
-using System;
+using Newtonsoft.Json.Linq;
 
 namespace Envoi
 {
@@ -25,13 +24,10 @@ namespace Envoi
             WebRTC.Initialize(null);
 
             signalingChannel = new MessageWebSocket();
+            signalingChannel.MessageReceived += MessageReceived;
             signalingChannel.ConnectAsync(new Uri("ws://barnab2.tk:9090")).AsTask().Wait();
-            //signalingChannel.MessageReceived += MessageReceived;
 
             dataWriter = new DataWriter();
-
-            // Test send over websocket
-            //string coucou = "{\"type\":\"login\", \"name\":\"cedric2\"}";
 
             iceList = new List<RTCIceServer>
             {
@@ -43,13 +39,10 @@ namespace Envoi
                 new RTCIceServer() { Url = "stun:stun4.l.google.com:19302" }
             };
 
-            //rtcDataChannel.OnError += delegate { Debug.WriteLine("Channel error"); };
-            //rtcDataChannel.OnOpen += delegate { Debug.WriteLine("Channel open"); };
-            //rtcDataChannel.OnClose += delegate { Debug.WriteLine("Channel close"); };
-
-            StartRTC(true);
+            SetupWebSocket();
         }
 
+        // Initialisation WebRTC
         private void StartRTC(bool isInitiator)
         {
             rtcConfiguration = new RTCConfiguration()
@@ -60,37 +53,39 @@ namespace Envoi
             };
             peerConnection = new RTCPeerConnection(rtcConfiguration);
 
-            peerConnection.OnIceCandidate += (RTCPeerConnectionIceEvent candidate) =>
+            peerConnection.OnIceCandidate += async (RTCPeerConnectionIceEvent candidate) =>
             {
                 try
                 {
-                    dataWriter.WriteString("{\"candidate\":" + candidate.Candidate);
-                    signalingChannel.OutputStream.WriteAsync(dataWriter.DetachBuffer());
+                    dataWriter.WriteString("{\"candidate\":" + candidate.Candidate + "}");
+                    await signalingChannel.OutputStream.WriteAsync(dataWriter.DetachBuffer());
 
                     Debug.WriteLine("Candidate success");
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 {
                     Debug.WriteLine("Candidate fail : " + e.Message);
                 }
-                
+
             };
 
-            peerConnection.OnNegotiationNeeded += delegate
+            peerConnection.OnNegotiationNeeded += async delegate
             {
                 try
                 {
-                    peerConnection.CreateOffer();
-                    peerConnection.SetLocalDescription(peerConnection.RemoteDescription);
+                    await peerConnection.CreateOffer();
+                    await peerConnection.SetLocalDescription(peerConnection.RemoteDescription);
 
-                    dataWriter.WriteString("{\"desc\":" + peerConnection.LocalDescription);
-                    signalingChannel.OutputStream.WriteAsync(dataWriter.DetachBuffer());
+                    dataWriter.WriteString("{\"desc\":" + peerConnection.LocalDescription + "}");
+                    await signalingChannel.OutputStream.WriteAsync(dataWriter.DetachBuffer());
 
                     Debug.WriteLine("Negociation success");
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 {
                     Debug.WriteLine("Negociation fail : " + e.Message);
                 }
-                
+
             };
 
             if (isInitiator)
@@ -108,47 +103,99 @@ namespace Envoi
             }
         }
 
-        private void MessageReceived(MessageWebSocket sender, MessageWebSocketMessageReceivedEventArgs args)
+        // Gestion des messges reçus par la connexion WebSocket
+        private async void MessageReceived(MessageWebSocket sender, MessageWebSocketMessageReceivedEventArgs args)
         {
-            try
+            // Lecture réponses WebSocket
+            using (DataReader reader = args.GetDataReader())
             {
-                using (DataReader reader = args.GetDataReader())
+                JObject message = new JObject();
+                try
                 {
-                    if (peerConnection == null)
-                    {
-                        StartRTC(false);
-                    }
+                    // Parsing réponse WebSocket
+                    string json = reader.ReadString(args.GetDataReader().UnconsumedBufferLength).Replace("\\", "");
+                    message = JObject.Parse(json);
+                    Debug.WriteLine(json);
 
-                    var message = JsonObject.Parse(args.GetDataReader().ReadString(reader.UnconsumedBufferLength));
-                    if (message.GetNamedValue("desc") != null)
+                    // Types de messages...
+                    switch (message.GetValue("type").ToString())
                     {
-                        var desc = message.GetNamedValue("desc");
-
-                        if (desc.GetString() == "offer")
-                        {
-                            peerConnection.SetRemoteDescription(peerConnection.RemoteDescription);
+                        // Message "offer"
+                        case "offer":
+                            if (peerConnection == null)
+                            {
+                                StartRTC(false);
+                            }
+                            JObject descOffer = JObject.Parse(message.GetValue("offer").ToString());
+                            Debug.WriteLine(descOffer.GetValue("sdp").ToString());
+                            peerConnection.SetRemoteDescription(new RTCSessionDescription(RTCSdpType.Offer, descOffer.GetValue("sdp").ToString()));
                             peerConnection.CreateAnswer();
-                            peerConnection.SetLocalDescription(peerConnection.RemoteDescription);
+                            peerConnection.SetLocalDescription(new RTCSessionDescription(RTCSdpType.Offer, descOffer.GetValue("sdp").ToString()));
 
-                            dataWriter.WriteString("{\"desc\":" + peerConnection.LocalDescription);
-                            signalingChannel.OutputStream.WriteAsync(dataWriter.DetachBuffer());
-                        }
-                    }
-                    else
-                    {
-                        peerConnection.AddIceCandidate(new RTCIceCandidate() { Candidate = message.GetNamedValue("desc").GetString() });
+                            // TO DO problème avec l'appel de peerConnection.LocalDescription
+
+                            //dataWriter.WriteString("{\"type\":\"answer\", \"answer\":" + peerConnection.LocalDescription + "}");
+                            await signalingChannel.OutputStream.WriteAsync(dataWriter.DetachBuffer());
+                            Debug.WriteLine(rtcDataChannel.ReadyState);
+                            break;
+
+                        // Message "answer"
+                        case "answer":
+                            if (peerConnection == null)
+                            {
+                                StartRTC(false);
+                            }
+                            var descAnswer = message.GetValue("answer");
+                            await peerConnection.SetRemoteDescription(new RTCSessionDescription() { Sdp = descAnswer.ToString() });
+                            break;
+                            
+                        // Message "login"
+                        case "login":
+                            Debug.WriteLine("Sucess login");
+                            break;
+
+                        // Message "candidate"
+                        case "candidate":
+                            if (peerConnection == null)
+                            {
+                                StartRTC(false);
+                            }
+                            var candidate = message.GetValue("candidate").ToString();
+                            if (!"".Equals(candidate))
+                            {
+                                JObject descCandidate = JObject.Parse(message.GetValue("candidate").ToString());
+                                Debug.WriteLine(descCandidate);
+                                await peerConnection.AddIceCandidate(new RTCIceCandidate()
+                                {
+                                    Candidate = descCandidate.GetValue("candidate").ToString(),
+                                    SdpMid = descCandidate.GetValue("sdpMid").ToString(),
+                                    SdpMLineIndex = ushort.Parse(descCandidate.GetValue("sdpMLineIndex").ToString())
+                                });
+                            }
+                            break;
+
+                        default:
+                            Debug.WriteLine("Unsupported SDP type");
+                            break;
                     }
                 }
+                catch (Exception e)
+                {
+                    Debug.WriteLine("Invalid Json :" + e.Message);
+                }
             }
-            catch (Exception e)
-            {
-                
-            }
+
         }
 
-        private void SetupSender()
+        // Initialisation WebSocket
+        private void SetupWebSocket()
         {
-
+            dataWriter.WriteString("{\"type\":\"login\", \"name\":\"sadam\"}");
+            signalingChannel.OutputStream.WriteAsync(dataWriter.DetachBuffer());
+            if (peerConnection == null)
+            {
+                StartRTC(true);
+            }
         }
 
         private void SendKinectData()

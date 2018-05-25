@@ -15,7 +15,6 @@ namespace Core
         {
             this.InitializeComponent();
             Debug.WriteLine("Core Test");
-
             Sender envoi = new Sender();
         }
     }
