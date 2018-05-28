@@ -53,6 +53,10 @@
       <Project>{e78a1d2a-a859-4602-9a72-585c30fdca82}</Project>
       <Name>ServeurFusion.EnvoiRTC</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ServeurFusion.ReceptionUDP\ServeurFusion.ReceptionUDP.csproj">
+      <Project>{E1ECD4E6-23FC-4514-9C15-B26EF0398D6B}</Project>
+      <Name>ServeurFusion.ReceptionUDP</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
