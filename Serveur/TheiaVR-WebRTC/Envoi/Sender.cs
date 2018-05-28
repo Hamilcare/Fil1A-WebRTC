@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
 
 namespace Envoi
 {
@@ -31,12 +32,7 @@ namespace Envoi
 
             iceList = new List<RTCIceServer>
             {
-                new RTCIceServer() { Url = "stun:stun.l.google.com:19302" },
-                new RTCIceServer() { Credential = "YzYNCouZM1mhqhmseWk6", Url = "turn:13.250.13.83:3478?transport=udp", Username = "YzYNCouZM1mhqhmseWk6" },
-                new RTCIceServer() { Url = "stun:stun1.l.google.com:19302" },
-                new RTCIceServer() { Url = "stun:stun2.l.google.com:19302" },
-                new RTCIceServer() { Url = "stun:stun3.l.google.com:19302" },
-                new RTCIceServer() { Url = "stun:stun4.l.google.com:19302" }
+                new RTCIceServer() { Url = "stun:stun.1.google.com:19302" }
             };
 
             SetupWebSocket();
@@ -73,10 +69,11 @@ namespace Envoi
             {
                 try
                 {
-                    await peerConnection.CreateOffer();
-                    await peerConnection.SetLocalDescription(peerConnection.RemoteDescription);
+                    RTCSessionDescription rtcSessionDescription = await peerConnection.CreateOffer();
+                    await peerConnection.SetLocalDescription(rtcSessionDescription);
 
-                    dataWriter.WriteString("{\"desc\":" + peerConnection.LocalDescription + "}");
+                    dataWriter.WriteString("{\"type\":\"offer\", \"offer\":" +
+                                           "{\"type\":\"offer\", \"sdp\":\"" + peerConnection.LocalDescription.Sdp.ToString() + "\"}}");
                     await signalingChannel.OutputStream.WriteAsync(dataWriter.DetachBuffer());
 
                     Debug.WriteLine("Negociation success");
@@ -104,18 +101,15 @@ namespace Envoi
         }
 
         // Gestion des messges reçus par la connexion WebSocket
-        private async void MessageReceived(MessageWebSocket sender, MessageWebSocketMessageReceivedEventArgs args)
+        private async void MessageReceived(MessageWebSocket sender, MessageWebSocketMessageReceivedEventArgs e)
         {
             // Lecture réponses WebSocket
-            using (DataReader reader = args.GetDataReader())
+            using (DataReader reader = e.GetDataReader())
             {
-                JObject message = new JObject();
                 try
                 {
                     // Parsing réponse WebSocket
-                    string json = reader.ReadString(args.GetDataReader().UnconsumedBufferLength).Replace("\\", "");
-                    message = JObject.Parse(json);
-                    Debug.WriteLine(json);
+                    JObject message = JObject.Parse(reader.ReadString(e.GetDataReader().UnconsumedBufferLength).Replace("\\", ""));
 
                     // Types de messages...
                     switch (message.GetValue("type").ToString())
@@ -127,16 +121,39 @@ namespace Envoi
                                 StartRTC(false);
                             }
                             JObject descOffer = JObject.Parse(message.GetValue("offer").ToString());
-                            Debug.WriteLine(descOffer.GetValue("sdp").ToString());
-                            peerConnection.SetRemoteDescription(new RTCSessionDescription(RTCSdpType.Offer, descOffer.GetValue("sdp").ToString()));
-                            peerConnection.CreateAnswer();
-                            peerConnection.SetLocalDescription(new RTCSessionDescription(RTCSdpType.Offer, descOffer.GetValue("sdp").ToString()));
+                            RTCSessionDescription rtcRemoteDescription = new RTCSessionDescription()
+                            {
+                                Type = RTCSdpType.Offer,
+                                Sdp = descOffer.GetValue("sdp").ToString()
+                            };
 
-                            // TO DO problème avec l'appel de peerConnection.LocalDescription
+                            Task remoteDescriptionTask = Task.Factory.StartNew(async () =>
+                            {
+                                Debug.WriteLine("Remote desc done");
+                                await peerConnection.SetRemoteDescription(rtcRemoteDescription);
+                                
+                            }).ContinueWith(async _ =>
+                            {
+                                Debug.WriteLine("Answer created");
+                                RTCSessionDescription rtcSessionDescription = await peerConnection.CreateAnswer();
+                                
+                                return rtcSessionDescription;
+                            }).ContinueWith(async (answer) =>
+                            {
+                                Debug.WriteLine("local desc done");
+                                await peerConnection.SetLocalDescription(answer.Result.Result);
+                                
+                            }).ContinueWith(async _ =>
+                            {
+                                Debug.WriteLine("{\"type\":\"answer\", \"answer\":" +
+                                                "{\"type\":\"answer\", \"sdp\":\"" + peerConnection.LocalDescription.Sdp.ToString() + "\"}}");
 
-                            //dataWriter.WriteString("{\"type\":\"answer\", \"answer\":" + peerConnection.LocalDescription + "}");
-                            await signalingChannel.OutputStream.WriteAsync(dataWriter.DetachBuffer());
-                            Debug.WriteLine(rtcDataChannel.ReadyState);
+                                dataWriter.WriteString("{\"type\":\"answer\", \"answer\":" +
+                                                       "{\"type\":\"answer\", \"sdp\":\"" + peerConnection.LocalDescription.Sdp.ToString() + "\"}}");
+                                await signalingChannel.OutputStream.WriteAsync(dataWriter.DetachBuffer());
+                            });
+
+                            //Debug.WriteLine(rtcDataChannel.ReadyState);
                             break;
 
                         // Message "answer"
@@ -165,12 +182,13 @@ namespace Envoi
                             {
                                 JObject descCandidate = JObject.Parse(message.GetValue("candidate").ToString());
                                 Debug.WriteLine(descCandidate);
-                                await peerConnection.AddIceCandidate(new RTCIceCandidate()
+                                RTCIceCandidate rtcIceCandidate = new RTCIceCandidate()
                                 {
                                     Candidate = descCandidate.GetValue("candidate").ToString(),
                                     SdpMid = descCandidate.GetValue("sdpMid").ToString(),
                                     SdpMLineIndex = ushort.Parse(descCandidate.GetValue("sdpMLineIndex").ToString())
-                                });
+                                };
+                                await peerConnection.AddIceCandidate(rtcIceCandidate);
                             }
                             break;
 
@@ -179,9 +197,9 @@ namespace Envoi
                             break;
                     }
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    Debug.WriteLine("Invalid Json :" + e.Message);
+                    Debug.WriteLine("Invalid Json :" + ex.Message);
                 }
             }
 
@@ -191,16 +209,44 @@ namespace Envoi
         private void SetupWebSocket()
         {
             dataWriter.WriteString("{\"type\":\"login\", \"name\":\"sadam\"}");
-            signalingChannel.OutputStream.WriteAsync(dataWriter.DetachBuffer());
+            signalingChannel.OutputStream.WriteAsync(dataWriter.DetachBuffer()).AsTask().Wait();
             if (peerConnection == null)
             {
                 StartRTC(true);
             }
         }
 
-        private void SendKinectData()
-        {
 
+
+
+
+
+
+
+        public async Task RTCRemoteDescription(RTCSessionDescription rtcRemoteDescription)
+        {
+            await peerConnection.SetRemoteDescription(rtcRemoteDescription);
+        }
+
+        public async Task RTCLocalDescription(RTCSessionDescription rtcLocalDescription)
+        {
+            await peerConnection.SetLocalDescription(rtcLocalDescription);
+        }
+
+        public async Task<RTCSessionDescription> RTCAnswer()
+        {
+            RTCSessionDescription rtcSessionDescription = await peerConnection.CreateAnswer();
+            return rtcSessionDescription;
+        }
+
+        public async Task RTCWriteAnswer()
+        {
+            Debug.WriteLine("{\"type\":\"answer\", \"answer\":" +
+                            "{\"type\":\"answer\", \"sdp\":\"" + peerConnection.LocalDescription.Sdp.ToString() + "\"}}");
+
+            dataWriter.WriteString("{\"type\":\"answer\", \"answer\":" +
+                                   "{\"type\":\"answer\", \"sdp\":\"" + peerConnection.LocalDescription.Sdp.ToString() + "\"}}");
+            await signalingChannel.OutputStream.WriteAsync(dataWriter.DetachBuffer());
         }
     }
 }
