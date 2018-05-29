@@ -148,6 +148,10 @@ namespace ServeurFusion.EnvoiRTC
             Console.WriteLine("Error ! ");
         }
 
+        /// <summary>
+        /// Handling new IceCandidate
+        /// </summary>
+        /// <param name="iceCandidate">IceCandidate</param>
         private void OnIceCandidate(SpitfireIceCandidate iceCandidate)
         {
             Console.WriteLine("NEW CANDIDATE: {0} {1} {2}", iceCandidate.Sdp, iceCandidate.SdpMid, iceCandidate.SdpIndex);
@@ -160,9 +164,9 @@ namespace ServeurFusion.EnvoiRTC
         }
 
         /// <summary>
-        /// Récupère la sdp de la answer créée
+        /// Get the SDP of the created Answer
         /// </summary>
-        /// <param name="sdp"></param>
+        /// <param name="sdp">SDP of the Answer</param>
         private void OnSuccessAnswer(SpitfireSdp sdp)
         {
             Console.WriteLine("SuccessAnswer : " + sdp.Sdp);
@@ -176,16 +180,21 @@ namespace ServeurFusion.EnvoiRTC
             _signallingServer.Send(answerJson);
         }
 
+        /// <summary>
+        /// Console message when IceState changed
+        /// </summary>
+        /// <param name="state">IceSate</param>
         private void IceStateChange(IceConnectionState state)
         {
-            Console.WriteLine("State changed : " + state.ToString());
-            if (state == IceConnectionState.Disconnected)
-            {
-                Console.WriteLine("ICE has left the building.");
-            }
+            Console.WriteLine("IceState changed : " + state.ToString());
         }
 
-        private static void HandleMessage(string label, DataMessage msg)
+        /// <summary>
+        /// Console message when a message is received on DataChannel
+        /// </summary>
+        /// <param name="label">DataChannel name</param>
+        /// <param name="msg">Received message</param>
+        private void HandleMessage(string label, DataMessage msg)
         {
             if (msg.IsBinary)
             {
@@ -197,22 +206,26 @@ namespace ServeurFusion.EnvoiRTC
             }
         }
 
-        private void SpitfireOnOnBufferAmountChange(string label, int previousBufferAmount, int currentBufferAmount,
-            int bytesSent,
-            int bytesReceived)
-        {
-        }
-
+        /// <summary>
+        /// Console message when DataChannel is closed
+        /// </summary>
+        /// <param name="label">DataChannel name</param>
         private void SpitfireOnOnDataChannelClose(string label)
         {
-            Console.WriteLine("Data Channel Closed!");
+            Console.WriteLine("DataChannel Closed");
         }
 
         private void DataChannelOpen(string label)
         {
-            Console.WriteLine("$Data Channel Opened!");
+            Console.WriteLine("DataChannel Opened");
             _dataChannelLabel = label;
-            _rtcPeerConnection.DataChannelSendText(_dataChannelLabel, "HELLO WORLD!");
+            byte[] bite = new byte[3000];
+            for(int i = 0; i < 2999; i++)
+            {
+                bite[i] = (byte)i;
+            }
+            //_rtcPeerConnection.DataChannelSendText(_dataChannelLabel, "HELLO WORLD!");
+            _rtcPeerConnection.DataChannelSendData(_dataChannelLabel, bite);
             //Console.WriteLine(_rtcPeerConnection.GetDataChannelInfo(label).Reliable);
         }
 
