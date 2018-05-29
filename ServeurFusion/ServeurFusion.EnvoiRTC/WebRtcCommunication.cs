@@ -16,7 +16,7 @@ namespace ServeurFusion.EnvoiRTC
     /// </summary>
     public class WebRtcCommunication : IDisposable
     {
-        private SpitfireRtc _spitfire;
+        private SpitfireRtc _rtcPeerConnection;
 
         private WebSocket _signallingServer;
 
@@ -50,20 +50,20 @@ namespace ServeurFusion.EnvoiRTC
 #if DEBUG
             //SpitfireRtc.EnableLogging();
 #endif
-            _spitfire = new SpitfireRtc();
+            _rtcPeerConnection = new SpitfireRtc();
 
 
             SetupCallbacks();
 
             //Ajoute un serveur Stun de Google
-            _spitfire.AddServerConfig(new Spitfire.ServerConfig()
+            _rtcPeerConnection.AddServerConfig(new Spitfire.ServerConfig()
             {
                 Host = "stun.1.google.com",
                 Port = 19302,
                 Type = ServerType.Stun
             });
 
-            bool started = _spitfire.InitializePeerConnection();
+            bool started = _rtcPeerConnection.InitializePeerConnection();
         }
 
         public void Connect()
@@ -98,8 +98,7 @@ namespace ServeurFusion.EnvoiRTC
                     _connectedUser = messageJson.GetValue("name").ToString();
                     var offerJson = JObject.Parse(messageJson.GetValue("offer").ToString());
                     string sdpOffer = offerJson.GetValue("sdp").ToString();
-                    _spitfire.SetOfferRequest(sdpOffer);
-                    _spitfire.CreateOffer();
+                    _rtcPeerConnection.SetOfferRequest(sdpOffer);
                     break;
                 case "candidate":
                     var candidateStr = messageJson.GetValue("candidate").ToString();
@@ -110,7 +109,7 @@ namespace ServeurFusion.EnvoiRTC
                         string sdp = candidateJson.GetValue("candidate").ToString();
                         string sdpMid = candidateJson.GetValue("sdpMid").ToString();
                         int sdpMLineIndex = candidateJson.GetValue("sdpMLineIndex").ToObject<int>();
-                        _spitfire.AddIceCandidate(sdpMid, sdpMLineIndex, sdp);
+                        _rtcPeerConnection.AddIceCandidate(sdpMid, sdpMLineIndex, sdp);
                     }
                     break;
             }
@@ -121,20 +120,20 @@ namespace ServeurFusion.EnvoiRTC
 
         private void SetupCallbacks()
         {
-            _spitfire.OnIceCandidate += OnIceCandidate;
-            _spitfire.OnDataChannelOpen += DataChannelOpen;
-            _spitfire.OnDataChannelClose += SpitfireOnOnDataChannelClose;
-            _spitfire.OnDataMessage += HandleMessage;
-            _spitfire.OnIceStateChange += IceStateChange;
-            _spitfire.OnSuccessAnswer += OnSuccessAnswer;
-            _spitfire.OnFailure += SpitFireOnFail;
-            _spitfire.OnError += SpitFireOnError;
-            _spitfire.OnSuccessOffer += SpitFireOnSuccessAnswer;
+            _rtcPeerConnection.OnIceCandidate += OnIceCandidate;
+            _rtcPeerConnection.OnDataChannelOpen += DataChannelOpen;
+            _rtcPeerConnection.OnDataChannelClose += SpitfireOnOnDataChannelClose;
+            _rtcPeerConnection.OnDataMessage += HandleMessage;
+            _rtcPeerConnection.OnIceStateChange += IceStateChange;
+            _rtcPeerConnection.OnSuccessAnswer += OnSuccessAnswer;
+            _rtcPeerConnection.OnFailure += SpitFireOnFail;
+            _rtcPeerConnection.OnError += SpitFireOnError;
+            _rtcPeerConnection.OnSuccessOffer += SpitFireOnSuccessOffer;
         }
 
-        private void SpitFireOnSuccessAnswer(SpitfireSdp sdp)
+        private void SpitFireOnSuccessOffer(SpitfireSdp sdp)
         {
-            Console.WriteLine("SuccessAnswer : " + sdp.Sdp + " ; Type : " + sdp.Type);
+            Console.WriteLine("SuccessOffer : " + sdp.Sdp + " ; Type : " + sdp.Type);
         }
 
         private void SpitFireOnFail(string err)
@@ -165,7 +164,7 @@ namespace ServeurFusion.EnvoiRTC
         private void OnSuccessAnswer(SpitfireSdp sdp)
         {
             Console.WriteLine("SuccessAnswer : " + sdp.Sdp);
-            _spitfire.SetOfferReply(sdp.Type.ToString(), sdp.Sdp);
+            _rtcPeerConnection.SetOfferReply(sdp.Type.ToString(), sdp.Sdp);
             string answerJson;
             if (String.IsNullOrWhiteSpace(_connectedUser))
                 answerJson = JsonConvert.SerializeObject(new { type = "answer", answer = new { type = "answer", sdp = sdp.Sdp } });
@@ -210,7 +209,7 @@ namespace ServeurFusion.EnvoiRTC
         private void DataChannelOpen(string label)
         {
             Console.WriteLine("$Data Channel Opened!");
-            Console.WriteLine(_spitfire.GetDataChannelInfo(label).Reliable);
+            Console.WriteLine(_rtcPeerConnection.GetDataChannelInfo(label).Reliable);
         }
 
         public void Dispose()
