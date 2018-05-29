@@ -23,6 +23,8 @@ namespace ServeurFusion.EnvoiRTC
         //TODO: à voir s'il ne faut pas une liste
         private string _connectedUser;
 
+        private string _dataChannelLabel;
+
         public WebRtcCommunication()
         {
             //Serveur de signalling
@@ -209,7 +211,9 @@ namespace ServeurFusion.EnvoiRTC
         private void DataChannelOpen(string label)
         {
             Console.WriteLine("$Data Channel Opened!");
-            Console.WriteLine(_rtcPeerConnection.GetDataChannelInfo(label).Reliable);
+            _dataChannelLabel = label;
+            _rtcPeerConnection.DataChannelSendText(_dataChannelLabel, "HELLO WORLD!");
+            //Console.WriteLine(_rtcPeerConnection.GetDataChannelInfo(label).Reliable);
         }
 
         public void Dispose()
