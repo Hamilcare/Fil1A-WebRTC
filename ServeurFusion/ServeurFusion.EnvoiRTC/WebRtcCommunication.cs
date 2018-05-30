@@ -4,36 +4,41 @@ using Spitfire;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using WebSocketSharp;
 
-
 namespace ServeurFusion.EnvoiRTC
 {
     /// <summary>
-    /// Cette classe s'occupe de la communication en WebRTC
+    /// WebRTC protocol implementation for communication with a client
     /// </summary>
     public class WebRtcCommunication : IDisposable
     {
+        private UdpClient _udpServer;
+
         private SpitfireRtc _rtcPeerConnection;
 
         private WebSocket _signallingServer;
 
-        //TODO: à voir s'il ne faut pas une liste
+        // TODO: List of users for multi-clients implementation ?
         private string _connectedUser;
 
         private string _dataChannelLabel;
 
         public WebRtcCommunication()
         {
-            //Serveur de signalling
+            _udpServer = new UdpClient(9877);
+
+            // Setup signaling server
             _signallingServer = new WebSocket("ws://barnab2.tk:9090");
             _signallingServer.OnMessage += WebSocketOnMessage;
 
             _signallingServer.OnOpen += (sender, e) =>
             {
-                Console.WriteLine("WebSocket Open");
+                Console.WriteLine("WebSocket Opened");
             };
             _signallingServer.OnError += (sender, e) =>
             {
@@ -41,14 +46,12 @@ namespace ServeurFusion.EnvoiRTC
             };
             _signallingServer.OnClose += (sender, e) =>
             {
-                Console.WriteLine("WebSocket Close");
+                Console.WriteLine("WebSocket Closed");
             };
 
             _signallingServer.Connect();
 
-
-
-            //Active le log WebRTC détaillé dans la console 
+            // Enable WebRTC full logging
 #if DEBUG
             //SpitfireRtc.EnableLogging();
 #endif
@@ -57,7 +60,7 @@ namespace ServeurFusion.EnvoiRTC
 
             SetupCallbacks();
 
-            //Ajoute un serveur Stun de Google
+            // Adding Stun server
             _rtcPeerConnection.AddServerConfig(new Spitfire.ServerConfig()
             {
                 Host = "stun.1.google.com",
@@ -68,40 +71,55 @@ namespace ServeurFusion.EnvoiRTC
             bool started = _rtcPeerConnection.InitializePeerConnection();
         }
 
+        /// <summary>
+        /// Connecting to signaling server
+        /// </summary>
         public void Connect()
         {
-            _signallingServer.Send("{\"type\":\"login\", \"name\":\"uwp_sucks\"}");
+            _signallingServer.Send("{\"type\":\"login\", \"name\":\"xx\"}");
         }
 
+        /// <summary>
+        /// WebSocket received messages handling
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e">Data sent</param>
         private void WebSocketOnMessage(object sender, MessageEventArgs e)
         {
-            Console.WriteLine("WebSocket : message reçu : " + e.Data);
+            Console.WriteLine("WebSocket received message : " + e.Data);
 
             string message = e.Data;
-            //Evite l'exception sur l'Hello World
+
+            // Ignore Hello World message
             if (message.Contains("Hello world"))
                 return;
 
+            // Parsing received message
             var messageJson = JObject.Parse(message);
 
-            //Type de message reçu
+            // Switch received message type
             string messageType = messageJson.GetValue("type").ToString();
+            Console.WriteLine("WebSocket received message type : " + messageType);
             switch (messageType)
             {
+                // Login message
                 case "login":
                     bool success = messageJson.GetValue("success").ToObject<bool>();
                     if (success)
                         Console.WriteLine("WebSocket : Login success");
                     else
-                        Console.WriteLine("WebSocket : Login Error");
+                        Console.WriteLine("WebSocket : Login error");
                     break;
 
+                // Offer message
                 case "offer":
                     _connectedUser = messageJson.GetValue("name").ToString();
                     var offerJson = JObject.Parse(messageJson.GetValue("offer").ToString());
                     string sdpOffer = offerJson.GetValue("sdp").ToString();
                     _rtcPeerConnection.SetOfferRequest(sdpOffer);
                     break;
+
+                // Candidate message
                 case "candidate":
                     var candidateStr = messageJson.GetValue("candidate").ToString();
                     if (!String.IsNullOrWhiteSpace(candidateStr))
@@ -115,37 +133,48 @@ namespace ServeurFusion.EnvoiRTC
                     }
                     break;
             }
-
-            Console.WriteLine($"Type : {messageJson.GetValue("type")}");
-            Console.WriteLine("WebSocket said : " + e.Data);
         }
 
+        /// <summary>
+        /// Setup WebRTC events handlers
+        /// </summary>
         private void SetupCallbacks()
         {
             _rtcPeerConnection.OnIceCandidate += OnIceCandidate;
             _rtcPeerConnection.OnDataChannelOpen += DataChannelOpen;
-            _rtcPeerConnection.OnDataChannelClose += SpitfireOnOnDataChannelClose;
+            _rtcPeerConnection.OnDataChannelClose += OnDataChannelClose;
             _rtcPeerConnection.OnDataMessage += HandleMessage;
             _rtcPeerConnection.OnIceStateChange += IceStateChange;
             _rtcPeerConnection.OnSuccessAnswer += OnSuccessAnswer;
-            _rtcPeerConnection.OnFailure += SpitFireOnFail;
-            _rtcPeerConnection.OnError += SpitFireOnError;
-            _rtcPeerConnection.OnSuccessOffer += SpitFireOnSuccessOffer;
+            _rtcPeerConnection.OnFailure += OnFail;
+            _rtcPeerConnection.OnError += OnError;
+            _rtcPeerConnection.OnSuccessOffer += OnSuccessOffer;
         }
 
-        private void SpitFireOnSuccessOffer(SpitfireSdp sdp)
+        /// <summary>
+        /// Console message when success Offer
+        /// </summary>
+        /// <param name="sdp">SDP of the offer</param>
+        private void OnSuccessOffer(SpitfireSdp sdp)
         {
             Console.WriteLine("SuccessOffer : " + sdp.Sdp + " ; Type : " + sdp.Type);
         }
 
-        private void SpitFireOnFail(string err)
+        /// <summary>
+        /// Console message when WebRTC fail
+        /// </summary>
+        /// <param name="err"></param>
+        private void OnFail(string err)
         {
-            Console.WriteLine("Fail : " + err);
+            Console.WriteLine("WebRTC Fail : " + err);
         }
 
-        private void SpitFireOnError()
+        /// <summary>
+        /// Console message when WebRTC error
+        /// </summary>
+        private void OnError()
         {
-            Console.WriteLine("Error ! ");
+            Console.WriteLine("WebRTC error");
         }
 
         /// <summary>
@@ -154,12 +183,14 @@ namespace ServeurFusion.EnvoiRTC
         /// <param name="iceCandidate">IceCandidate</param>
         private void OnIceCandidate(SpitfireIceCandidate iceCandidate)
         {
-            Console.WriteLine("NEW CANDIDATE: {0} {1} {2}", iceCandidate.Sdp, iceCandidate.SdpMid, iceCandidate.SdpIndex);
+            Console.WriteLine("New IceCandidate : {0} {1} {2}", iceCandidate.Sdp, iceCandidate.SdpMid, iceCandidate.SdpIndex);
             string answerJson;
             if (String.IsNullOrWhiteSpace(_connectedUser))
-                answerJson = JsonConvert.SerializeObject(new { type = "candidate", candidate = new { candidate = iceCandidate.Sdp, sdpMid = iceCandidate.SdpMid, sdpMLineIndex = iceCandidate.SdpIndex } });
+                answerJson = JsonConvert.SerializeObject(new { type = "candidate", candidate = new { candidate = iceCandidate.Sdp, sdpMid = iceCandidate.SdpMid,
+                                                               sdpMLineIndex = iceCandidate.SdpIndex } });
             else
-                answerJson = JsonConvert.SerializeObject(new { type = "candidate", candidate = new { candidate = iceCandidate.Sdp, sdpMid = iceCandidate.SdpMid, sdpMLineIndex = iceCandidate.SdpIndex }, name = _connectedUser });
+                answerJson = JsonConvert.SerializeObject(new { type = "candidate", candidate = new { candidate = iceCandidate.Sdp, sdpMid = iceCandidate.SdpMid,
+                                                               sdpMLineIndex = iceCandidate.SdpIndex }, name = _connectedUser });
             _signallingServer.Send(answerJson);
         }
 
@@ -210,7 +241,7 @@ namespace ServeurFusion.EnvoiRTC
         /// Console message when DataChannel is closed
         /// </summary>
         /// <param name="label">DataChannel name</param>
-        private void SpitfireOnOnDataChannelClose(string label)
+        private void OnDataChannelClose(string label)
         {
             Console.WriteLine("DataChannel Closed");
         }
@@ -219,16 +250,58 @@ namespace ServeurFusion.EnvoiRTC
         {
             Console.WriteLine("DataChannel Opened");
             _dataChannelLabel = label;
-            byte[] bite = new byte[3000];
-            for(int i = 0; i < 2999; i++)
+
+            var remoteEP = new IPEndPoint(IPAddress.Any, 9876);
+            while (true)
             {
-                bite[i] = (byte)i;
+                // Receiving frames from KinectStreamer
+                var data = _udpServer.Receive(ref remoteEP);
+                int count = 0;
+                // Processing Skeleton
+                Skeleton skeleton = new Skeleton()
+                {
+                    Timestamp = BitConverter.ToInt64(data, 0),
+                    Tag = data[8],
+                    SkeletonPoints = new List<SkeletonPoint>()
+                };
+                count = 9;
+                while(count < 409)
+                {
+                    // Processing SkeletonPoints
+                    SkeletonPoint skeletonPoint = new SkeletonPoint();
+                    skeletonPoint.X = BitConverter.ToSingle(data, count);
+                    count += 4;
+                    skeletonPoint.Y = BitConverter.ToSingle(data, count);
+                    count += 4;
+                    skeletonPoint.Z = BitConverter.ToSingle(data, count);
+                    count += 4;
+                    skeletonPoint.R = data[count];
+                    count += 1;
+                    skeletonPoint.G = data[count];
+                    count += 1;
+                    skeletonPoint.B = data[count];
+                    count += 1;
+                    skeletonPoint.Tag = data[count];
+                    count += 1;
+                    skeleton.SkeletonPoints.Add(skeletonPoint);
+                }
+
+                // Formatting and sending data
+                string formattedMessage = "";
+                skeleton.SkeletonPoints.ForEach(s => formattedMessage+= $"{s.X};{s.Y};{s.Z};{s.R};{s.G};{s.B};".Replace(',','.'));
+                formattedMessage = formattedMessage.Remove(formattedMessage.Length-1, 1);
+                //Console.WriteLine(formattedMessage+"\n");
+
+                _rtcPeerConnection.DataChannelSendText(_dataChannelLabel, formattedMessage);
             }
+
             //_rtcPeerConnection.DataChannelSendText(_dataChannelLabel, "HELLO WORLD!");
-            _rtcPeerConnection.DataChannelSendData(_dataChannelLabel, bite);
             //Console.WriteLine(_rtcPeerConnection.GetDataChannelInfo(label).Reliable);
         }
 
+        /// <summary>
+        /// Closing connection
+        /// </summary>
         public void Dispose()
         {
             if (_signallingServer != null)
