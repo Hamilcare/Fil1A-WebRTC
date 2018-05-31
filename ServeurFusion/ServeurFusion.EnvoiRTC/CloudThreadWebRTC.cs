@@ -44,14 +44,14 @@ namespace ServeurFusion.EnvoiRTC
                 }
                 else
                 {
-                    //Cloud cloud = cloudThreadInfos.CloudToWebRTC.ConsumeData();
+                    Cloud cloud = cloudThreadInfos.CloudToWebRTC.ConsumeData();
 
-                    //string formattedCloudMessage = "";
-                    //cloud.CloudPoints.ForEach(s => formattedCloudMessage += $"{s.X};{s.Y};{s.Z};{s.R};{s.G};{s.B};".Replace(',', '.'));
-                    //formattedCloudMessage = formattedCloudMessage.Remove(formattedCloudMessage.Length - 1, 1);
-                    //Console.WriteLine(formattedMessage+"\n");
+                    string formattedCloudMessage = "";
+                    cloud.Points.ForEach(s => formattedCloudMessage += $"{s.X};{s.Y};{s.Z};{s.R};{s.G};{s.B};".Replace(',', '.'));
+                    formattedCloudMessage = formattedCloudMessage.Remove(formattedCloudMessage.Length - 1, 1);
+                    Console.WriteLine(formattedCloudMessage + "\n");
 
-                    //cloudThreadInfos.RTCPeerConnection.DataChannelSendText("cloudChannel", formattedCloudMessage);
+                    cloudThreadInfos.RTCPeerConnection.DataChannelSendText("cloudChannel", formattedCloudMessage);
                 }
 
             }
