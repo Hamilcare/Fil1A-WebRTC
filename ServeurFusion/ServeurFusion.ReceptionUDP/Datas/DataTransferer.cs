@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServeurFusion.ReceptionUDP.Datas;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace ServeurFusion.ReceptionUDP
 {
+    
     public class DataTransferer
     {
 
@@ -15,17 +17,17 @@ namespace ServeurFusion.ReceptionUDP
         private int size = 0;
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public void AddData(Array data)
+        public void AddData(Skeleton data)
         {
             size++;
             fileInfos.Enqueue(data);
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public Array ConsumeData()
+        public Skeleton ConsumeData()
         {
             size--;
-            return (Array)fileInfos.Dequeue();
+            return (Skeleton)fileInfos.Dequeue();
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]

@@ -1,26 +1,13 @@
-﻿using System;
-using System.Collections;
+﻿using ServeurFusion.ReceptionUDP.Datas;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ServeurFusion.ReceptionUDP
 {
-    public class UdpThreadInfos
-    {
-        public DataTransferer _dataTransferer { get; set; }
-        public int _port = 9877;
-
-        public UdpThreadInfos(DataTransferer dataTransferer, int port)
-        {
-            _dataTransferer = dataTransferer;
-            _port = port;
-        }
-    }
+   
     public class UdpListener
     {
         private UdpThreadInfos _threadInfos;
@@ -36,14 +23,44 @@ namespace ServeurFusion.ReceptionUDP
             Console.WriteLine("Thread udp démarrée");
 
             UdpClient udp = new UdpClient(ti._port);
+            var remoteEP = new IPEndPoint(IPAddress.Any, 9876);
 
             while (true)
             {
-                var remoteEP = new IPEndPoint(IPAddress.Any, ti._port);
+                // Receiving frames from KinectStreamer
                 var data = udp.Receive(ref remoteEP);
-                ti._dataTransferer.AddData(data);
-                Console.WriteLine("receive data from " + remoteEP.ToString() + " ; Lenght = " + data.Length + " ; content = " + data);
-                Console.WriteLine("dataSize : " + ti._dataTransferer.ReadData().Count);
+                int count = 0;
+                // Processing Skeleton
+                Skeleton skeleton = new Skeleton()
+                {
+                    Timestamp = BitConverter.ToInt64(data, 0),
+                    Tag = data[8],
+                    SkeletonPoints = new List<SkeletonPoint>()
+                };
+                count = 9;
+                while (count < 409)
+                {
+                    // Processing SkeletonPoints
+                    SkeletonPoint skeletonPoint = new SkeletonPoint();
+                    skeletonPoint.X = BitConverter.ToSingle(data, count);
+                    count += 4;
+                    skeletonPoint.Y = BitConverter.ToSingle(data, count);
+                    count += 4;
+                    skeletonPoint.Z = BitConverter.ToSingle(data, count);
+                    count += 4;
+                    skeletonPoint.R = data[count];
+                    count += 1;
+                    skeletonPoint.G = data[count];
+                    count += 1;
+                    skeletonPoint.B = data[count];
+                    count += 1;
+                    skeletonPoint.Tag = data[count];
+                    count += 1;
+                    skeleton.SkeletonPoints.Add(skeletonPoint);
+                }
+                
+                ti._dataTransferer.AddData(skeleton);
+                Console.WriteLine("Ajout d'un skeleton à la liste : " +  skeleton.ToString());
             }
         }
 
@@ -52,6 +69,18 @@ namespace ServeurFusion.ReceptionUDP
             Thread th = new Thread(new ParameterizedThreadStart(StartListening));
             
             th.Start(_threadInfos);
+        }
+    }
+
+    public class UdpThreadInfos
+    {
+        public DataTransferer _dataTransferer { get; set; }
+        public int _port = 9877;
+
+        public UdpThreadInfos(DataTransferer dataTransferer, int port)
+        {
+            _dataTransferer = dataTransferer;
+            _port = port;
         }
     }
 }

@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace ServeurFusion.EnvoiRTC
+
+namespace ServeurFusion.ReceptionUDP.Datas
 {
-    class Skeleton
+    public class Skeleton
     {
         // Timestamp - 8 bytes
         public long Timestamp { get; set; }
