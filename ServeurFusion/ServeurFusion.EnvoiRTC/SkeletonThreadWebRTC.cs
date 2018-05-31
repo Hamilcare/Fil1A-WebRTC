@@ -45,11 +45,8 @@ namespace ServeurFusion.EnvoiRTC
                     string formattedSkeletonMessage = "";
                     skeleton.SkeletonPoints.ForEach(s => formattedSkeletonMessage += $"{s.X};{s.Y};{s.Z};{s.R};{s.G};{s.B};".Replace(',', '.'));
                     formattedSkeletonMessage = formattedSkeletonMessage.Remove(formattedSkeletonMessage.Length - 1, 1);
-                    //Console.WriteLine(formattedMessage+"\n");
-
                     skeletonThreadInfos.RTCPeerConnection.DataChannelSendText("skeletonChannel", formattedSkeletonMessage);
                 }
-
             }
         }
 

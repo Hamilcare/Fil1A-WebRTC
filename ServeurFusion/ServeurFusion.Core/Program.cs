@@ -23,14 +23,13 @@ namespace ServeurFusion.Core
 
             var udpListener = new UdpSkeletonListener(udpToMiddle, 9877);
             var transformationService = new TransformationSkeletonService(udpToMiddle, middleToWebRtc);
-            WebRtcCommunication webRtcSender = new WebRtcCommunication()
-            {
-                SkeletonToWebRtc = middleToWebRtc
-            };
+            WebRtcCommunication webRtcSender = new WebRtcCommunication(middleToWebRtc);
 
             udpListener.Listen();
             transformationService.Prosecute();
-            webRtcSender.StartWebRtcCommunication();
+            webRtcSender.Connect();
+            Console.WriteLine("coucou");
+            Console.ReadLine();
         }
     }
 }

@@ -21,8 +21,6 @@ namespace ServeurFusion.EnvoiRTC
     /// </summary>
     public class WebRtcCommunication : IDisposable
     {
-        private UdpClient _udpServer;
-
         private SpitfireRtc _rtcPeerConnection;
 
         private WebSocket _signallingServer;
@@ -31,17 +29,22 @@ namespace ServeurFusion.EnvoiRTC
 
         private CloudThreadWebRTC _cloudThread;
 
-        public DataTransferer<Skeleton> SkeletonToWebRtc { get; set; }
+        private DataTransferer<Skeleton> _skeletonToWebRtc { get; set; }
 
-        public DataTransferer<Cloud> CloudToWebRtc { get; set; }
+        private DataTransferer<Cloud> _cloudToWebRtc { get; set; }
 
         // TODO: List of users for multi-clients implementation ?
         private string _connectedUser;
 
-        public void StartWebRtcCommunication()
+        public WebRtcCommunication(DataTransferer<Skeleton> skeletonToWebRtc)
         {
-            _skeletonThread = new SkeletonThreadWebRTC(SkeletonToWebRtc, _rtcPeerConnection);
-            _cloudThread = new CloudThreadWebRTC(CloudToWebRtc, _rtcPeerConnection);
+            //SpitfireRtc.EnableLogging();
+            _skeletonToWebRtc = skeletonToWebRtc;
+
+            _rtcPeerConnection = new SpitfireRtc();
+
+            _skeletonThread = new SkeletonThreadWebRTC(_skeletonToWebRtc, _rtcPeerConnection);
+            _cloudThread = new CloudThreadWebRTC(_cloudToWebRtc, _rtcPeerConnection);
 
             // Setup signaling server
             _signallingServer = new WebSocket("ws://barnab2.tk:9090");
@@ -66,9 +69,6 @@ namespace ServeurFusion.EnvoiRTC
 #if DEBUG
             //SpitfireRtc.EnableLogging();
 #endif
-            _rtcPeerConnection = new SpitfireRtc();
-
-
             SetupCallbacks();
 
             // Adding Stun server
