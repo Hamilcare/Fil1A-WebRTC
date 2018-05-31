@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ServeurFusion.EnvoiRTC
 {
-    class Skeleton
+    public class Skeleton
     {
         // Timestamp - 8 bytes
         public long Timestamp { get; set; }

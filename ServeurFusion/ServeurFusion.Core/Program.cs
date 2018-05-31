@@ -12,25 +12,24 @@ namespace ServeurFusion.Core
     {
         static void Main(string[] args)
         {
-            TestWebRtc();
-            //TestUdp();
+            TestWebRTC();
         }
 
-        private static void TestWebRtc()
+        private static void TestWebRTC()
         {
-            using (var _webRtcCommunication = new WebRtcCommunication())
-            {
-                _webRtcCommunication.Connect();
-                Console.ReadKey(true);
-            }
-        }
+            DataTransferer udpToMiddle = new DataTransferer();
+            DataTransferer middleToWebRtc = new DataTransferer();
 
-        private static void TestUdp()
-        {
-            using(var udpListener = new UdpListener())
+            var udpListener = new UdpListener(udpToMiddle, 9877);
+            var transformationService = new TransformationService(udpToMiddle, middleToWebRtc);
+            var webRtcSender = new WebRtcCommunication()
             {
-                udpListener.Listen();
-            }
+                SkeletonToWebRtc = middleToWebRtc
+            };
+
+            udpListener.Listen();
+            transformationService.Prosecute();
+            webRtcSender.StartWebRtcCommunication();
         }
     }
 }
