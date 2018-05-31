@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using WebSocketSharp;
 
@@ -25,8 +26,6 @@ namespace ServeurFusion.EnvoiRTC
 
         // TODO: List of users for multi-clients implementation ?
         private string _connectedUser;
-
-        private string _dataChannelLabel;
 
         public WebRtcCommunication()
         {
@@ -248,52 +247,59 @@ namespace ServeurFusion.EnvoiRTC
 
         private void DataChannelOpen(string label)
         {
-            Console.WriteLine("DataChannel Opened");
-            _dataChannelLabel = label;
+            Console.WriteLine("DataChannel Opened ; name = " + label);
 
-            var remoteEP = new IPEndPoint(IPAddress.Any, 9876);
-            while (true)
+            if (label == "skeletonChannel")
             {
-                // Receiving frames from KinectStreamer
-                var data = _udpServer.Receive(ref remoteEP);
-                int count = 0;
-                // Processing Skeleton
-                Skeleton skeleton = new Skeleton()
+                new Thread(() =>
                 {
-                    Timestamp = BitConverter.ToInt64(data, 0),
-                    Tag = data[8],
-                    SkeletonPoints = new List<SkeletonPoint>()
-                };
-                count = 9;
-                while(count < 409)
-                {
-                    // Processing SkeletonPoints
-                    SkeletonPoint skeletonPoint = new SkeletonPoint();
-                    skeletonPoint.X = BitConverter.ToSingle(data, count);
-                    count += 4;
-                    skeletonPoint.Y = BitConverter.ToSingle(data, count);
-                    count += 4;
-                    skeletonPoint.Z = BitConverter.ToSingle(data, count);
-                    count += 4;
-                    skeletonPoint.R = data[count];
-                    count += 1;
-                    skeletonPoint.G = data[count];
-                    count += 1;
-                    skeletonPoint.B = data[count];
-                    count += 1;
-                    skeletonPoint.Tag = data[count];
-                    count += 1;
-                    skeleton.SkeletonPoints.Add(skeletonPoint);
-                }
+                    while (true)
+                    {
+                        var remoteEP = new IPEndPoint(IPAddress.Any, 9876);
+                        // Receiving frames from KinectStreamer
+                        var data = _udpServer.Receive(ref remoteEP);
+                        int count = 0;
+                        // Processing Skeleton
+                        Skeleton skeleton = new Skeleton()
+                        {
+                            Timestamp = BitConverter.ToInt64(data, 0),
+                            Tag = data[8],
+                            SkeletonPoints = new List<SkeletonPoint>()
+                        };
+                        count = 9;
+                        while (count < 409)
+                        {
+                            // Processing SkeletonPoints
+                            SkeletonPoint skeletonPoint = new SkeletonPoint();
+                            skeletonPoint.X = BitConverter.ToSingle(data, count);
+                            count += 4;
+                            skeletonPoint.Y = BitConverter.ToSingle(data, count);
+                            count += 4;
+                            skeletonPoint.Z = BitConverter.ToSingle(data, count);
+                            count += 4;
+                            skeletonPoint.R = data[count];
+                            count += 1;
+                            skeletonPoint.G = data[count];
+                            count += 1;
+                            skeletonPoint.B = data[count];
+                            count += 1;
+                            skeletonPoint.Tag = data[count];
+                            count += 1;
+                            skeleton.SkeletonPoints.Add(skeletonPoint);
+                        }
 
-                // Formatting and sending data
-                string formattedMessage = "";
-                skeleton.SkeletonPoints.ForEach(s => formattedMessage+= $"{s.X};{s.Y};{s.Z};{s.R};{s.G};{s.B};".Replace(',','.'));
-                formattedMessage = formattedMessage.Remove(formattedMessage.Length-1, 1);
-                //Console.WriteLine(formattedMessage+"\n");
+                        // Formatting and sending data
+                        string formattedMessage = "";
+                        skeleton.SkeletonPoints.ForEach(s => formattedMessage += $"{s.X};{s.Y};{s.Z};{s.R};{s.G};{s.B};".Replace(',', '.'));
+                        formattedMessage = formattedMessage.Remove(formattedMessage.Length - 1, 1);
+                        //Console.WriteLine(formattedMessage+"\n");
 
-                _rtcPeerConnection.DataChannelSendText(_dataChannelLabel, formattedMessage);
+                        _rtcPeerConnection.DataChannelSendText(label, formattedMessage);
+                    }
+                }).Start();
             }
+
+            
 
             //_rtcPeerConnection.DataChannelSendText(_dataChannelLabel, "HELLO WORLD!");
             //Console.WriteLine(_rtcPeerConnection.GetDataChannelInfo(label).Reliable);
