@@ -30,7 +30,7 @@ namespace ServeurFusion.Core
 
             udpListener.Listen();
             transformationService.Prosecute();
-            //webRtcSender.WebRTC();
+            webRtcSender.StartWebRtcCommunication();
         }
     }
 }
