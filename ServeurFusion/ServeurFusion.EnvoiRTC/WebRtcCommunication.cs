@@ -1,10 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-<<<<<<< HEAD
 using ServeurFusion.ReceptionUDP.Datas;
-=======
 using ServeurFusion.ReceptionUDP;
->>>>>>> master
 using Spitfire;
 using System;
 using System.Collections.Generic;
