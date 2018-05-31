@@ -9,7 +9,7 @@ namespace ServeurFusion.ReceptionUDP.Datas.PointCloud
 {
     public class Cloud
     {
-        public long Tag { get; set; }
-        public IList<CloudPoint> Points { get; set; }
+        public long Timestamp { get; set; }
+        public List<CloudPoint> Points { get; set; }
     }
 }
