@@ -36,7 +36,7 @@ namespace ServeurFusion.EnvoiRTC
             {
                 if (skeletonThreadInfos.SkeletonToWebRTC.IsEmpty())
                 {
-                    Thread.Sleep(1000);
+                    //Thread.Sleep(1000);
                 }
                 else
                 {

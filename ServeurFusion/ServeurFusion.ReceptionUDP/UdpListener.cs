@@ -42,8 +42,8 @@ namespace ServeurFusion.ReceptionUDP
                 var remoteEP = new IPEndPoint(IPAddress.Any, ti._port);
                 var data = udp.Receive(ref remoteEP);
                 ti._dataTransferer.AddData(data);
-                Console.WriteLine("receive data from " + remoteEP.ToString() + " ; Lenght = " + data.Length + " ; content = " + data);
-                Console.WriteLine("dataSize : " + ti._dataTransferer.ReadData().Count);
+                //Console.WriteLine("receive data from " + remoteEP.ToString() + " ; Lenght = " + data.Length + " ; content = " + data);
+                //Console.WriteLine("dataSize : " + ti._dataTransferer.ReadData().Count);
             }
         }
 

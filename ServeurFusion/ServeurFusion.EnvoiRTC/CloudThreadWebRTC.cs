@@ -40,7 +40,7 @@ namespace ServeurFusion.EnvoiRTC
             {
                 if (cloudThreadInfos.CloudToWebRTC.IsEmpty())
                 {
-                    Thread.Sleep(1000);
+                    //Thread.Sleep(1000);
                 }
                 else
                 {
@@ -49,8 +49,6 @@ namespace ServeurFusion.EnvoiRTC
                     string formattedCloudMessage = "";
                     cloud.Points.ForEach(s => formattedCloudMessage += $"{s.X};{s.Y};{s.Z};{s.R};{s.G};{s.B};".Replace(',', '.'));
                     formattedCloudMessage = formattedCloudMessage.Remove(formattedCloudMessage.Length - 1, 1);
-                    Console.WriteLine(formattedCloudMessage + "\n");
-
                     cloudThreadInfos.RTCPeerConnection.DataChannelSendText("cloudChannel", formattedCloudMessage);
                 }
 

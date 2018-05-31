@@ -88,7 +88,7 @@ namespace ServeurFusion.EnvoiRTC
         /// </summary>
         public void Connect()
         {
-            _signallingServer.Send("{\"type\":\"login\", \"name\":\"xx\"}");
+            _signallingServer.Send("{\"type\":\"login\", \"name\":\"bite\"}");
         }
 
         /// <summary>

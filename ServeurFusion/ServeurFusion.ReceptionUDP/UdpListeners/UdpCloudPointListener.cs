@@ -62,12 +62,13 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
 
                     cloud.Points.Add(point);
                 }
-                
+
                 //Premiere frame
                 if (aggregateCloud == null)
                     aggregateCloud = cloud;
                 //Si on change de frame : on envoi la derniere reçue completement
-                else if (aggregateCloud.Timestamp != cloud.Timestamp) {
+                else if (aggregateCloud.Timestamp != cloud.Timestamp)
+                {
                     ti._dataTransferer.AddData(aggregateCloud);
                     aggregateCloud = cloud;
                 }
@@ -79,5 +80,4 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
         }
 
     }
-
 }

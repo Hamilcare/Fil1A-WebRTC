@@ -58,7 +58,7 @@ namespace ServeurFusion.ReceptionUDP
                 }
                 
                 ti._dataTransferer.AddData(skeleton);
-                Console.WriteLine("Ajout d'un skeleton à la liste : " +  skeleton.ToString());
+                //Console.WriteLine("Ajout d'un skeleton à la liste : " +  skeleton.ToString());
             }
         }
     }

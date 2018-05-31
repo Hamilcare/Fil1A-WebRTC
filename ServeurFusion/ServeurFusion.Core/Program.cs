@@ -16,10 +16,9 @@ namespace ServeurFusion.Core
     {
         static void Main(string[] args)
         {
-            //TestWebRtc();
-            TestUdp();
+            Test();
         }
-        private static void TestUdp()
+        private static void Test()
         {
             DataTransferer<Skeleton> skeletonUdpToMiddle = new DataTransferer<Skeleton>();
             DataTransferer<Skeleton> skeletonMiddleToWebRtc = new DataTransferer<Skeleton>();
@@ -42,7 +41,6 @@ namespace ServeurFusion.Core
             cloudTransformationService.Prosecute();
 
             webRtcSender.Connect();
-            Console.WriteLine("coucou");
             Console.ReadLine();
         }
     }

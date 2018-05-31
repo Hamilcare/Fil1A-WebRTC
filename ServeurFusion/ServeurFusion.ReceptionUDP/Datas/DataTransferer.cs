@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -10,25 +11,25 @@ namespace ServeurFusion.ReceptionUDP.Datas
 {
     public class DataTransferer<T>
     {
-        private static Queue fileInfos = new Queue();
+        private static BlockingCollection<T> fileInfos = new BlockingCollection<T>();
         private int size = 0;
 
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void AddData(T data)
         {
             size++;
-            fileInfos.Enqueue(data);
+            fileInfos.Add(data);
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
         public T ConsumeData()
         {
             size--;
-            return (T)fileInfos.Dequeue();
+            return fileInfos.Take();
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public Queue ReadData()
+        public BlockingCollection<T> ReadData()
         {
             return fileInfos;
         }

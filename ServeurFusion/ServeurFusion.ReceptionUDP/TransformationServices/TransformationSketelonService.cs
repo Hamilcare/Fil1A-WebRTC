@@ -22,12 +22,12 @@ namespace ServeurFusion.ReceptionUDP
             {
                 if (ti._udpToMiddle.IsEmpty())
                 {
-                    Thread.Sleep(1000);
+                    //Thread.Sleep(1000);
                 }
                 else
                 {
                     ti._middleToWebRtc.AddData(ti._udpToMiddle.ConsumeData());
-                    Console.WriteLine("Transfert");
+                    //Console.WriteLine("Transfert");
                 }
             }
         }
