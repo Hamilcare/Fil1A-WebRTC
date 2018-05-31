@@ -10,18 +10,16 @@ using System.Threading.Tasks;
 
 namespace ServeurFusion.ReceptionUDP.UdpListeners
 {
-    public class UdpSkeletonListener
+    public class UdpCloudPointListener : UdpListener<Array>
     {
-        private UdpThreadInfos _threadInfos;
-
-        public UdpSkeletonListener(DataTransferer<Skeleton> dataTransferer, int port)
+        public UdpCloudPointListener(DataTransferer<Array> dataTransferer, int port)
         {
-            _threadInfos = new UdpThreadInfos(dataTransferer, port);
+            this._udpThreadInfos = new UdpThreadInfos<Array>(dataTransferer, port);
         }
 
-        private void StartListening(object threadInfos)
+        override protected void StartListening(object threadInfos)
         {
-            UdpThreadInfos ti = (UdpThreadInfos)threadInfos;
+            UdpThreadInfos<Array> ti = (UdpThreadInfos<Array>)threadInfos;
             Console.WriteLine("Thread udp démarrée");
 
             UdpClient udp = new UdpClient(ti._port);
@@ -29,31 +27,9 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
 
             while (true)
             {
-               /* // Receiving frames from KinectStreamer
-                var data = udp.Receive(ref remoteEP);
-                
-                ti._dataTransferer.AddData(data);
-                Console.WriteLine("Ajout d'un skeleton à la liste : " + skeleton.ToString());*/
             }
         }
 
-        public void Listen()
-        {
-            Thread th = new Thread(new ParameterizedThreadStart(StartListening));
-
-            th.Start(_threadInfos);
-        }
     }
 
-    public class UdpThreadInfos
-    {
-        public DataTransferer<Skeleton> _dataTransferer { get; set; }
-        public int _port = 9877;
-
-        public UdpThreadInfos(DataTransferer<Skeleton> dataTransferer, int port)
-        {
-            _dataTransferer = dataTransferer;
-            _port = port;
-        }
-    }
 }

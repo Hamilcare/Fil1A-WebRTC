@@ -1,4 +1,5 @@
 ﻿using ServeurFusion.ReceptionUDP.Datas;
+using ServeurFusion.ReceptionUDP.UdpListeners;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -7,19 +8,16 @@ using System.Threading;
 
 namespace ServeurFusion.ReceptionUDP
 {
-   
-    public class UdpSkeletonListener
+    public class UdpSkeletonListener : UdpListener<Skeleton>
     {
-        private UdpThreadInfos _threadInfos;
-
         public UdpSkeletonListener(DataTransferer<Skeleton> dataTransferer, int port)
         {
-            _threadInfos = new UdpThreadInfos(dataTransferer, port);
+            this._udpThreadInfos = new UdpThreadInfos<Skeleton>(dataTransferer, port);
         }
 
-        private void StartListening(object threadInfos)
+        override protected void StartListening(object threadInfos)
         {
-            UdpThreadInfos ti = (UdpThreadInfos)threadInfos;
+            UdpThreadInfos<Skeleton> ti = (UdpThreadInfos<Skeleton>)threadInfos;
             Console.WriteLine("Thread udp démarrée");
 
             UdpClient udp = new UdpClient(ti._port);
@@ -62,25 +60,6 @@ namespace ServeurFusion.ReceptionUDP
                 ti._dataTransferer.AddData(skeleton);
                 Console.WriteLine("Ajout d'un skeleton à la liste : " +  skeleton.ToString());
             }
-        }
-
-        public void Listen()
-        {
-            Thread th = new Thread(new ParameterizedThreadStart(StartListening));
-            
-            th.Start(_threadInfos);
-        }
-    }
-
-    public class UdpThreadInfos
-    {
-        public DataTransferer<Skeleton> _dataTransferer { get; set; }
-        public int _port = 9876;
-
-        public UdpThreadInfos(DataTransferer<Skeleton> dataTransferer, int port)
-        {
-            _dataTransferer = dataTransferer;
-            _port = port;
         }
     }
 }
