@@ -12,7 +12,7 @@ namespace ServeurFusion.ReceptionUDP
     {
         private UdpThreadInfos _threadInfos;
 
-        public UdpSkeletonListener(DataCloudPointTransferer dataTransferer, int port)
+        public UdpSkeletonListener(DataTransferer<Skeleton> dataTransferer, int port)
         {
             _threadInfos = new UdpThreadInfos(dataTransferer, port);
         }
@@ -74,10 +74,10 @@ namespace ServeurFusion.ReceptionUDP
 
     public class UdpThreadInfos
     {
-        public DataCloudPointTransferer _dataTransferer { get; set; }
+        public DataTransferer<Skeleton> _dataTransferer { get; set; }
         public int _port = 9876;
 
-        public UdpThreadInfos(DataCloudPointTransferer dataTransferer, int port)
+        public UdpThreadInfos(DataTransferer<Skeleton> dataTransferer, int port)
         {
             _dataTransferer = dataTransferer;
             _port = port;

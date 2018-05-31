@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServeurFusion.ReceptionUDP.Datas;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,18 +8,17 @@ using System.Threading.Tasks;
 
 namespace ServeurFusion.ReceptionUDP.TransformationServices
 {
-    class TransformationCloudPointService
+    class TransformationCloudPointService : TransformationService<Array>
     {
-        private MiddleThreadInfos _middleThreadInfos { get; set; }
 
-        public TransformationCloudPointService(DataCloudPointTransferer udpToMiddle, DataCloudPointTransferer middleToWebRtc)
+        public TransformationCloudPointService(DataTransferer<Array> udpToMiddle, DataTransferer<Array> middleToWebRtc)
         {
-            _middleThreadInfos = new MiddleThreadInfos(udpToMiddle, middleToWebRtc);
+            this._middleThreadInfos = new MiddleThreadInfos<Array>(udpToMiddle, middleToWebRtc);
         }
 
-        private void StartProsecute(object threadInfos)
+        override protected void StartProsecute(object threadInfos)
         {
-            MiddleThreadInfos ti = (MiddleThreadInfos)threadInfos;
+            MiddleThreadInfos<Array> ti = (MiddleThreadInfos<Array>)threadInfos;
             Console.WriteLine("Thread middle démarrée");
 
             while (true)
@@ -36,25 +36,6 @@ namespace ServeurFusion.ReceptionUDP.TransformationServices
 
             }
         }
-
-        public void Prosecute()
-        {
-            Thread th = new Thread(new ParameterizedThreadStart(StartProsecute));
-
-            th.Start(_middleThreadInfos);
-        }
     }
-
-    public class MiddleThreadInfos
-    {
-        public DataCloudPointTransferer _udpToMiddle { get; set; }
-        public DataCloudPointTransferer _middleToWebRtc { get; set; }
-
-        public MiddleThreadInfos(DataCloudPointTransferer udpToMiddle, DataCloudPointTransferer middleToWebRtc)
-        {
-            _udpToMiddle = udpToMiddle;
-            _middleToWebRtc = middleToWebRtc;
-        }
-    }
-}
+    
 }

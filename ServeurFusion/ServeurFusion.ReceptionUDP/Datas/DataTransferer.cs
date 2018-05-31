@@ -1,5 +1,4 @@
-﻿using ServeurFusion.ReceptionUDP.Datas;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,27 +6,25 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ServeurFusion.ReceptionUDP
+namespace ServeurFusion.ReceptionUDP.Datas
 {
-    
-    public class DataCloudPointTransferer
+    public class DataTransferer<T>
     {
-
         private static Queue fileInfos = new Queue();
         private int size = 0;
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public void AddData(Skeleton data)
+        public void AddData(T data)
         {
             size++;
             fileInfos.Enqueue(data);
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public Skeleton ConsumeData()
+        public T ConsumeData()
         {
             size--;
-            return (Skeleton)fileInfos.Dequeue();
+            return (T)fileInfos.Dequeue();
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
@@ -35,7 +32,7 @@ namespace ServeurFusion.ReceptionUDP
         {
             return fileInfos;
         }
-        
+
         public bool IsEmpty()
         {
             return size == 0;

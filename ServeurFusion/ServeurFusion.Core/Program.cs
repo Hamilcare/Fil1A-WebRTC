@@ -1,5 +1,6 @@
 ﻿using ServeurFusion.EnvoiRTC;
 using ServeurFusion.ReceptionUDP;
+using ServeurFusion.ReceptionUDP.Datas;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,8 +28,8 @@ namespace ServeurFusion.Core
 
         private static void TestUdp()
         {
-            DataCloudPointTransferer udpToMiddle = new DataCloudPointTransferer();
-            DataCloudPointTransferer middleToWebRtc = new DataCloudPointTransferer();
+            DataTransferer<Skeleton> udpToMiddle = new DataTransferer<Skeleton>();
+            DataTransferer<Skeleton> middleToWebRtc = new DataTransferer<Skeleton>();
 
             var udpListener = new UdpSkeletonListener(udpToMiddle, 9877);
             var transformationService = new TransformationSkeletonService(udpToMiddle, middleToWebRtc);

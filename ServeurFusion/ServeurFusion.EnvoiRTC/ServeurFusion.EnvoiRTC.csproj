@@ -67,14 +67,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Skeleton.cs" />
-    <Compile Include="SkeletonPoint.cs" />
     <Compile Include="WebRtcCommunication.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ServeurFusion.ReceptionUDP\ServeurFusion.ReceptionUDP.csproj">
+      <Project>{E1ECD4E6-23FC-4514-9C15-B26EF0398D6B}</Project>
+      <Name>ServeurFusion.ReceptionUDP</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

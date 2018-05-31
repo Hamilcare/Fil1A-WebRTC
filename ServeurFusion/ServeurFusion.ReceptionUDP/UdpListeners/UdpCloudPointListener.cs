@@ -1,9 +1,11 @@
-﻿using System;
+﻿using ServeurFusion.ReceptionUDP.Datas;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ServeurFusion.ReceptionUDP.UdpListeners
@@ -12,7 +14,7 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
     {
         private UdpThreadInfos _threadInfos;
 
-        public UdpSkeletonListener(DataCloudPointTransferer dataTransferer, int port)
+        public UdpSkeletonListener(DataTransferer<Skeleton> dataTransferer, int port)
         {
             _threadInfos = new UdpThreadInfos(dataTransferer, port);
         }
@@ -45,10 +47,10 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
 
     public class UdpThreadInfos
     {
-        public DataCloudPointTransferer _dataTransferer { get; set; }
+        public DataTransferer<Skeleton> _dataTransferer { get; set; }
         public int _port = 9877;
 
-        public UdpThreadInfos(DataCloudPointTransferer dataTransferer, int port)
+        public UdpThreadInfos(DataTransferer<Skeleton> dataTransferer, int port)
         {
             _dataTransferer = dataTransferer;
             _port = port;
