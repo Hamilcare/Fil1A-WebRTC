@@ -12,11 +12,11 @@ using System.Threading.Tasks;
 
 namespace ServeurFusion.ReceptionUDP.UdpListeners
 {
-    public class UdpCloudPointListener : UdpListener<Array>
+    public class UdpCloudPointListener : UdpListener<Cloud>
     {
-        public UdpCloudPointListener(DataTransferer<Array> dataTransferer, int port)
+        public UdpCloudPointListener(DataTransferer<Cloud> dataTransferer, int port)
         {
-            this._udpThreadInfos = new UdpThreadInfos<Array>(dataTransferer, port);
+            this._udpThreadInfos = new UdpThreadInfos<Cloud>(dataTransferer, port);
         }
 
         override protected void StartListening(object threadInfos)

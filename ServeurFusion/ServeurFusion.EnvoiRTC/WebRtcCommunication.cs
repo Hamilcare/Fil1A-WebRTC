@@ -36,10 +36,11 @@ namespace ServeurFusion.EnvoiRTC
         // TODO: List of users for multi-clients implementation ?
         private string _connectedUser;
 
-        public WebRtcCommunication(DataTransferer<Skeleton> skeletonToWebRtc)
+        public WebRtcCommunication(DataTransferer<Skeleton> skeletonToWebRtc, DataTransferer<Cloud> cloudToWebRtc)
         {
             //SpitfireRtc.EnableLogging();
             _skeletonToWebRtc = skeletonToWebRtc;
+            _cloudToWebRtc = cloudToWebRtc;
 
             _rtcPeerConnection = new SpitfireRtc();
 

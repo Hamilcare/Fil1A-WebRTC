@@ -1,4 +1,5 @@
 ﻿using ServeurFusion.ReceptionUDP.Datas;
+using ServeurFusion.ReceptionUDP.Datas.PointCloud;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,17 +9,17 @@ using System.Threading.Tasks;
 
 namespace ServeurFusion.ReceptionUDP.TransformationServices
 {
-    class TransformationCloudPointService : TransformationService<Array>
+    public class TransformationCloudPointService : TransformationService<Cloud>
     {
 
-        public TransformationCloudPointService(DataTransferer<Array> udpToMiddle, DataTransferer<Array> middleToWebRtc)
+        public TransformationCloudPointService(DataTransferer<Cloud> udpToMiddle, DataTransferer<Cloud> middleToWebRtc)
         {
-            this._middleThreadInfos = new MiddleThreadInfos<Array>(udpToMiddle, middleToWebRtc);
+            this._middleThreadInfos = new MiddleThreadInfos<Cloud>(udpToMiddle, middleToWebRtc);
         }
 
         override protected void StartProsecute(object threadInfos)
         {
-            MiddleThreadInfos<Array> ti = (MiddleThreadInfos<Array>)threadInfos;
+            MiddleThreadInfos<Cloud> ti = (MiddleThreadInfos<Cloud>)threadInfos;
             Console.WriteLine("Thread middle démarrée");
 
             while (true)
