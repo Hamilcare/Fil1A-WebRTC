@@ -41,7 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="WebRtcSender.cs" />
+    <Compile Include="TransformationService.cs" />
+    <Compile Include="DataTransferer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UdpListener.cs" />
   </ItemGroup>

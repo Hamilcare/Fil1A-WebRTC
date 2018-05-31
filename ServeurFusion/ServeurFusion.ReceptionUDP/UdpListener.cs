@@ -1,36 +1,57 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ServeurFusion.ReceptionUDP
 {
-    public class UdpListener : IDisposable
+    public class UdpThreadInfos
     {
-        private UdpClient _udpServer;
+        public DataTransferer _dataTransferer { get; set; }
+        public int _port = 9877;
 
-        public UdpListener()
+        public UdpThreadInfos(DataTransferer dataTransferer, int port)
         {
-            _udpServer = new UdpClient(9876);
+            _dataTransferer = dataTransferer;
+            _port = port;
+        }
+    }
+    public class UdpListener
+    {
+        private UdpThreadInfos _threadInfos;
+
+        public UdpListener(DataTransferer dataTransferer, int port)
+        {
+            _threadInfos = new UdpThreadInfos(dataTransferer, port);
+        }
+
+        private void StartListening(object threadInfos)
+        {
+            UdpThreadInfos ti = (UdpThreadInfos)threadInfos;
+            Console.WriteLine("Thread udp démarrée");
+
+            UdpClient udp = new UdpClient(ti._port);
+
+            while (true)
+            {
+                var remoteEP = new IPEndPoint(IPAddress.Any, ti._port);
+                var data = udp.Receive(ref remoteEP);
+                ti._dataTransferer.AddData(data);
+                Console.WriteLine("receive data from " + remoteEP.ToString() + " ; Lenght = " + data.Length + " ; content = " + data);
+                Console.WriteLine("dataSize : " + ti._dataTransferer.ReadData().Count);
+            }
         }
 
         public void Listen()
         {
-            while (true)
-            {
-                var remoteEP = new IPEndPoint(IPAddress.Any, 9876);
-                var data = _udpServer.Receive(ref remoteEP);
-                Console.WriteLine("receive data from " + remoteEP.ToString() + " ; Lenght = " + data.Length + " ; content = " + System.Text.Encoding.UTF8.GetString(data));
-            }
-        }
-
-        public void Dispose()
-        {
-            if (_udpServer != null)
-                _udpServer.Close();
+            Thread th = new Thread(new ParameterizedThreadStart(StartListening));
+            
+            th.Start(_threadInfos);
         }
     }
 }
