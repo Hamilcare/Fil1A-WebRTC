@@ -17,14 +17,10 @@ namespace ServeurFusion.Core
             TestUdp();
         }
 
-        private static void TestWebRtc()
+        private static void TestWebRTC()
         {
-            using (var _webRtcCommunication = new WebRtcCommunication())
-            {
-                _webRtcCommunication.Connect();
-                Console.ReadKey(true);
-            }
-        }
+            DataTransferer udpToMiddle = new DataTransferer();
+            DataTransferer middleToWebRtc = new DataTransferer();
 
         private static void TestUdp()
         {
@@ -38,7 +34,6 @@ namespace ServeurFusion.Core
             udpListener.Listen();
             transformationService.Prosecute();
             //webRtcSender.WebRTC();
-
         }
     }
 }
