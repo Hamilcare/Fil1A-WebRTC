@@ -8,11 +8,11 @@ using System.Threading;
 namespace ServeurFusion.ReceptionUDP
 {
    
-    public class UdpListener
+    public class UdpSkeletonListener
     {
         private UdpThreadInfos _threadInfos;
 
-        public UdpListener(DataTransferer dataTransferer, int port)
+        public UdpSkeletonListener(DataCloudPointTransferer dataTransferer, int port)
         {
             _threadInfos = new UdpThreadInfos(dataTransferer, port);
         }
@@ -74,10 +74,10 @@ namespace ServeurFusion.ReceptionUDP
 
     public class UdpThreadInfos
     {
-        public DataTransferer _dataTransferer { get; set; }
-        public int _port = 9877;
+        public DataCloudPointTransferer _dataTransferer { get; set; }
+        public int _port = 9876;
 
-        public UdpThreadInfos(DataTransferer dataTransferer, int port)
+        public UdpThreadInfos(DataCloudPointTransferer dataTransferer, int port)
         {
             _dataTransferer = dataTransferer;
             _port = port;

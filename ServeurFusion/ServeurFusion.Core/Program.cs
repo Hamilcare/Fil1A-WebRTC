@@ -27,16 +27,16 @@ namespace ServeurFusion.Core
 
         private static void TestUdp()
         {
-            DataTransferer udpToMiddle = new DataTransferer();
-            DataTransferer middleToWebRtc = new DataTransferer();
+            DataCloudPointTransferer udpToMiddle = new DataCloudPointTransferer();
+            DataCloudPointTransferer middleToWebRtc = new DataCloudPointTransferer();
 
-            var udpListener = new UdpListener(udpToMiddle, 9877);
-            var transformationService = new TransformationService(udpToMiddle, middleToWebRtc);
-            var webRtcSender = new WebRtcSender(middleToWebRtc);
+            var udpListener = new UdpSkeletonListener(udpToMiddle, 9877);
+            var transformationService = new TransformationSkeletonService(udpToMiddle, middleToWebRtc);
+            //var webRtcSender = new WebRtcSender(middleToWebRtc);
 
             udpListener.Listen();
             transformationService.Prosecute();
-            webRtcSender.WebRTC();
+            //webRtcSender.WebRTC();
 
         }
     }

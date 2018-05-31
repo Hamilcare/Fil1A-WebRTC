@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace ServeurFusion.ReceptionUDP
 {
     
-    public class DataTransferer
+    public class DataCloudPointTransferer
     {
 
         private static Queue fileInfos = new Queue();
