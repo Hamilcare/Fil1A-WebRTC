@@ -16,12 +16,6 @@ namespace ServeurFusion.Core
             //TestWebRtc();
             TestUdp();
         }
-
-        private static void TestWebRTC()
-        {
-            DataTransferer udpToMiddle = new DataTransferer();
-            DataTransferer middleToWebRtc = new DataTransferer();
-
         private static void TestUdp()
         {
             DataTransferer<Skeleton> udpToMiddle = new DataTransferer<Skeleton>();
@@ -29,7 +23,10 @@ namespace ServeurFusion.Core
 
             var udpListener = new UdpSkeletonListener(udpToMiddle, 9877);
             var transformationService = new TransformationSkeletonService(udpToMiddle, middleToWebRtc);
-            //var webRtcSender = new WebRtcSender(middleToWebRtc);
+            WebRtcCommunication webRtcSender = new WebRtcCommunication()
+            {
+                SkeletonToWebRtc = middleToWebRtc
+            };
 
             udpListener.Listen();
             transformationService.Prosecute();

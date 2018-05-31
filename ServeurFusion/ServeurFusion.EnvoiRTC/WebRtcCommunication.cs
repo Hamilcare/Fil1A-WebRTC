@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WebSocketSharp;
+using ServeurFusion.ReceptionUDP.Datas.PointCloud;
 
 namespace ServeurFusion.EnvoiRTC
 {
@@ -30,9 +31,9 @@ namespace ServeurFusion.EnvoiRTC
 
         private CloudThreadWebRTC _cloudThread;
 
-        public DataTransferer SkeletonToWebRtc { get; set; }
+        public DataTransferer<Skeleton> SkeletonToWebRtc { get; set; }
 
-        public DataTransferer CloudToWebRtc { get; set; }
+        public DataTransferer<Cloud> CloudToWebRtc { get; set; }
 
         // TODO: List of users for multi-clients implementation ?
         private string _connectedUser;

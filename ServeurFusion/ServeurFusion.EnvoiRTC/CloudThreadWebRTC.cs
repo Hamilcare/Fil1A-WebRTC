@@ -1,4 +1,6 @@
 ﻿using ServeurFusion.ReceptionUDP;
+using ServeurFusion.ReceptionUDP.Datas;
+using ServeurFusion.ReceptionUDP.Datas.PointCloud;
 using Spitfire;
 using System;
 using System.Collections.Generic;
@@ -11,10 +13,10 @@ namespace ServeurFusion.EnvoiRTC
 {
     public class CloudThreadInfos
     {
-        public DataTransferer CloudToWebRTC { get; set; }
+        public DataTransferer<Cloud> CloudToWebRTC { get; set; }
         public SpitfireRtc RTCPeerConnection { get; set; }
 
-        public CloudThreadInfos(DataTransferer cloudToWebRTC, SpitfireRtc rtcPeerConnection)
+        public CloudThreadInfos(DataTransferer<Cloud> cloudToWebRTC, SpitfireRtc rtcPeerConnection)
         {
             CloudToWebRTC = cloudToWebRTC;
             RTCPeerConnection = rtcPeerConnection;
@@ -24,7 +26,7 @@ namespace ServeurFusion.EnvoiRTC
     {
         private CloudThreadInfos CloudThreadInfos { get; set; }
 
-        public CloudThreadWebRTC(DataTransferer cloudToWebRTC, SpitfireRtc rtcPeerConnection)
+        public CloudThreadWebRTC(DataTransferer<Cloud> cloudToWebRTC, SpitfireRtc rtcPeerConnection)
         {
             CloudThreadInfos = new CloudThreadInfos(cloudToWebRTC, rtcPeerConnection);
         }

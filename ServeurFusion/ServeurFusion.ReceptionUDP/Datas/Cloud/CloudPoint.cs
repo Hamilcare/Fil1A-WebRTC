@@ -9,7 +9,7 @@ namespace ServeurFusion.ReceptionUDP.Datas.Cloud
     /// <summary>
     /// Représente un point du nuage de points
     /// </summary>
-    class CloudPoint
+    public class CloudPoint
     {
         // X point - 4 bytes
         public float X { get; set; }

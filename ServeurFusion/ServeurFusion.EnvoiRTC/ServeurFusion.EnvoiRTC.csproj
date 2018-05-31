@@ -68,6 +68,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="CloudThreadWebRTC.cs" />
+    <Compile Include="SkeletonThreadWebRTC.cs" />
     <Compile Include="WebRtcCommunication.cs" />
   </ItemGroup>
   <ItemGroup>

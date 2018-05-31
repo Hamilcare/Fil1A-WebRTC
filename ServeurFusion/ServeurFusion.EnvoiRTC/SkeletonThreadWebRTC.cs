@@ -1,4 +1,5 @@
 ﻿using ServeurFusion.ReceptionUDP;
+using ServeurFusion.ReceptionUDP.Datas;
 using Spitfire;
 using System;
 using System.Threading;
@@ -7,10 +8,10 @@ namespace ServeurFusion.EnvoiRTC
 {
     public class SkeletonThreadInfos
     {
-        public DataTransferer SkeletonToWebRTC { get; set; }
+        public DataTransferer<Skeleton> SkeletonToWebRTC { get; set; }
         public SpitfireRtc RTCPeerConnection { get; set; }
 
-        public SkeletonThreadInfos(DataTransferer skeletonToWebRTC, SpitfireRtc rtcPeerConnection)
+        public SkeletonThreadInfos(DataTransferer<Skeleton> skeletonToWebRTC, SpitfireRtc rtcPeerConnection)
         {
             SkeletonToWebRTC = skeletonToWebRTC;
             RTCPeerConnection = rtcPeerConnection;
@@ -21,7 +22,7 @@ namespace ServeurFusion.EnvoiRTC
     {
         private SkeletonThreadInfos SkeletonThreadInfos { get; set; }
 
-        public SkeletonThreadWebRTC(DataTransferer skeletonToWebRTC, SpitfireRtc rtcPeerConnection)
+        public SkeletonThreadWebRTC(DataTransferer<Skeleton> skeletonToWebRTC, SpitfireRtc rtcPeerConnection)
         {
             SkeletonThreadInfos = new SkeletonThreadInfos(skeletonToWebRTC, rtcPeerConnection);
         }
