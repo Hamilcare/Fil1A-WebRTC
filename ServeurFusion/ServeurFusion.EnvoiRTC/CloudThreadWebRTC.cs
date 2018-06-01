@@ -60,5 +60,10 @@ namespace ServeurFusion.EnvoiRTC
             Thread cloudThread = new Thread(new ParameterizedThreadStart(StartCloudThread));
             cloudThread.Start(CloudThreadInfos);
         }
+
+        public void Stop()
+        {
+            //CloudThread.Stop();
+        }
     }
 }

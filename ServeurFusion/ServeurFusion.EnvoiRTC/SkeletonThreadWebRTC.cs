@@ -55,5 +55,10 @@ namespace ServeurFusion.EnvoiRTC
             Thread skeletonThread = new Thread(new ParameterizedThreadStart(StartSkeletonThread));
             skeletonThread.Start(SkeletonThreadInfos);
         }
+
+        public void Stop()
+        {
+            //SkeletonThread.Stop();
+        }
     } 
 }
