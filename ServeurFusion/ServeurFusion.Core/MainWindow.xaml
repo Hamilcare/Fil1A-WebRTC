@@ -1,0 +1,19 @@
+﻿<Window x:Class="ServeurFusion.Core.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ServeurFusion.Core"
+        mc:Ignorable="d"
+        Title="Theia - serveur de fusion" Height="295.396" Width="568.096">
+    <Grid>
+        <GroupBox Header="Configuration UDP" Height="100" Margin="10,10,10,0" VerticalAlignment="Top" RenderTransformOrigin="0.47,-0.163"/>
+        <GroupBox Header="Configuration WebRTC" Height="100" Margin="10,115,10,0" VerticalAlignment="Top" RenderTransformOrigin="0.47,-0.163"/>
+        <Button x:Name="BtnStart" Content="Start" HorizontalAlignment="Left" Margin="10,0,0,10" Width="75" Height="20" VerticalAlignment="Bottom" Click="BtnStart_Click"/>
+        <Button x:Name="BtnStop" Content="Stop" Margin="90,0,0,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="75" IsEnabled="False" Click="BtnStop_Click"/>
+        <Button x:Name="BtnHideConsole" Content="Hide console" Margin="0,0,10,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Click="BtnHideConsole_Click"/>
+        <Button x:Name="BtnShowConsole" Content="Show console" Margin="0,0,90,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="84" Click="BtnShowConsole_Click" />
+        <Button x:Name="BtnCustomDebug" Content="Button" HorizontalAlignment="Left" Margin="240,234,0,0" VerticalAlignment="Top" Width="75" Click="BtnCustomDebug_Click" />
+    </Grid>
+</Window>
+
