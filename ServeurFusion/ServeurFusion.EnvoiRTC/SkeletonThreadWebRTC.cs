@@ -20,11 +20,13 @@ namespace ServeurFusion.EnvoiRTC
 
     public class SkeletonThreadWebRTC
     {
-        private SkeletonThreadInfos SkeletonThreadInfos { get; set; }
+        private Thread _skeletonThread;
+        private SkeletonThreadInfos _skeletonThreadInfos;
 
         public SkeletonThreadWebRTC(DataTransferer<Skeleton> skeletonToWebRTC, SpitfireRtc rtcPeerConnection)
         {
-            SkeletonThreadInfos = new SkeletonThreadInfos(skeletonToWebRTC, rtcPeerConnection);
+            _skeletonThreadInfos = new SkeletonThreadInfos(skeletonToWebRTC, rtcPeerConnection);
+            _skeletonThread = new Thread(new ParameterizedThreadStart(StartSkeletonThread));
         }
 
         private void StartSkeletonThread(object threadInfos)
@@ -34,11 +36,7 @@ namespace ServeurFusion.EnvoiRTC
 
             while (true)
             {
-                if (skeletonThreadInfos.SkeletonToWebRTC.IsEmpty())
-                {
-                    //Thread.Sleep(1000);
-                }
-                else
+                if (!skeletonThreadInfos.SkeletonToWebRTC.IsEmpty())
                 {
                     Skeleton skeleton = skeletonThreadInfos.SkeletonToWebRTC.ConsumeData();
 
@@ -50,15 +48,15 @@ namespace ServeurFusion.EnvoiRTC
             }
         }
 
-        public void Prosecute()
+        public void Start()
         {
-            Thread skeletonThread = new Thread(new ParameterizedThreadStart(StartSkeletonThread));
-            skeletonThread.Start(SkeletonThreadInfos);
+            _skeletonThread.Start(_skeletonThreadInfos);
         }
 
         public void Stop()
         {
-            //SkeletonThread.Stop();
+            _skeletonThread.Abort();
+            Console.WriteLine("Thread Skeleton sender stopped");
         }
     } 
 }

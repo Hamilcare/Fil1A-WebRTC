@@ -64,34 +64,6 @@ namespace ServeurFusion.Core
             //Launch GUI
             InitializeWindows(); // opens the WPF window and waits here
         }
-
-        /*
-        private static void Test()
-        {
-            DataTransferer<Skeleton> skeletonUdpToMiddle = new DataTransferer<Skeleton>();
-            DataTransferer<Skeleton> skeletonMiddleToWebRtc = new DataTransferer<Skeleton>();
-
-            DataTransferer<Cloud> cloudUdpToMiddle = new DataTransferer<Cloud>();
-            DataTransferer<Cloud> cloudMiddleToWebRtc = new DataTransferer<Cloud>();
-
-            var skeletonUdpListener = new UdpSkeletonListener(skeletonUdpToMiddle, 9877);
-            var cloudUdpListener = new UdpCloudPointListener(cloudUdpToMiddle, 9876);
-
-            var skeletonTransformationService = new TransformationSkeletonService(skeletonUdpToMiddle, skeletonMiddleToWebRtc);
-            var cloudTransformationService = new TransformationCloudPointService(cloudUdpToMiddle, cloudMiddleToWebRtc);
-
-            WebRtcCommunication webRtcSender = new WebRtcCommunication(skeletonMiddleToWebRtc, cloudMiddleToWebRtc);
-
-            skeletonUdpListener.Listen();
-            skeletonTransformationService.Prosecute();
-
-            cloudUdpListener.Listen();
-            cloudTransformationService.Prosecute();
-
-            webRtcSender.Connect();
-            Console.ReadLine();
-        }
-        */
     }
 
 }

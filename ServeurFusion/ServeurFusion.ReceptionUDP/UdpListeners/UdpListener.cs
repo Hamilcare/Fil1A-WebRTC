@@ -10,13 +10,18 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
 {
     public abstract class UdpListener<T>
     {
+        private Thread _udpListenerThread;
         protected UdpThreadInfos<T> _udpThreadInfos;
 
         public void Listen()
         {
-            Thread th = new Thread(new ParameterizedThreadStart(StartListening));
+            _udpListenerThread = new Thread(new ParameterizedThreadStart(StartListening));
+            _udpListenerThread.Start(_udpThreadInfos);
+        }
 
-            th.Start(_udpThreadInfos);
+        public void Stop()
+        {
+            _udpListenerThread.Abort();
         }
 
         protected abstract void StartListening(object obj);

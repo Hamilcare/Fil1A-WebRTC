@@ -14,29 +14,22 @@ namespace ServeurFusion.ReceptionUDP.TransformationServices
 
         public TransformationCloudPointService(DataTransferer<Cloud> udpToMiddle, DataTransferer<Cloud> middleToWebRtc)
         {
-            this._middleThreadInfos = new MiddleThreadInfos<Cloud>(udpToMiddle, middleToWebRtc);
+            _middleThreadInfos = new MiddleThreadInfos<Cloud>(udpToMiddle, middleToWebRtc);
         }
 
-        override protected void StartProsecute(object threadInfos)
+        override protected void Launch(object threadInfos)
         {
             MiddleThreadInfos<Cloud> ti = (MiddleThreadInfos<Cloud>)threadInfos;
-            Console.WriteLine("Thread middle démarrée");
+            Console.WriteLine("Thread middle démarré");
 
             while (true)
             {
-                if (ti._udpToMiddle.IsEmpty())
-                {
-                    //Thread.Sleep(1000);
-                }
-                else
+                if (!ti._udpToMiddle.IsEmpty())
                 {
                     ti._middleToWebRtc.AddData(ti._udpToMiddle.ConsumeData());
-                    //Console.WriteLine("Transfert");
-
                 }
 
             }
         }
     }
-    
 }

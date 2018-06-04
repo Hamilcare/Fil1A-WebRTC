@@ -10,17 +10,22 @@ namespace ServeurFusion.ReceptionUDP.TransformationServices
 {
     public abstract class TransformationService<T>
     {
+        private Thread _transformationServiceThread;
         protected MiddleThreadInfos<T> _middleThreadInfos{ get; set; }
 
 
-    public void Prosecute()
+        public void Start()
         {
-            Thread th = new Thread(new ParameterizedThreadStart(StartProsecute));
-
-            th.Start(_middleThreadInfos);
+            _transformationServiceThread = new Thread(new ParameterizedThreadStart(Launch));
+            _transformationServiceThread.Start(_middleThreadInfos);
         }
 
-        protected abstract void StartProsecute(object obj);
+        public void Stop()
+        {
+            _transformationServiceThread.Abort();
+        }
+
+        protected abstract void Launch(object obj);
     }
 
     public class MiddleThreadInfos<T>
@@ -34,5 +39,4 @@ namespace ServeurFusion.ReceptionUDP.TransformationServices
             _middleToWebRtc = middleToWebRtc;
         }
     }
-    
 }

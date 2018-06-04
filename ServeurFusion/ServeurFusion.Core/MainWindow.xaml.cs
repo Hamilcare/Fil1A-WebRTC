@@ -26,12 +26,19 @@ namespace ServeurFusion.Core
     /// </summary>
     public partial class MainWindow : Window
     {
-        //Structures de données 
-        private DataTransferer<Skeleton> skeletonUdpToMiddle = new DataTransferer<Skeleton>();
-        private DataTransferer<Skeleton> skeletonMiddleToWebRtc = new DataTransferer<Skeleton>();
+        private WebRtcCommunication _webRtcSender;
 
-        private DataTransferer<Cloud> cloudUdpToMiddle = new DataTransferer<Cloud>();
-        private DataTransferer<Cloud> cloudMiddleToWebRtc = new DataTransferer<Cloud>();
+        private UdpSkeletonListener _skeletonUdpListener;
+        private UdpCloudPointListener _cloudUdpListener;
+        private TransformationSkeletonService _skeletonTransformationService;
+        private TransformationCloudPointService _cloudTransformationService;
+
+        //Structures de données 
+        private DataTransferer<Skeleton> _skeletonUdpToMiddle = new DataTransferer<Skeleton>();
+        private DataTransferer<Skeleton> _skeletonMiddleToWebRtc = new DataTransferer<Skeleton>();
+
+        private DataTransferer<Cloud> _cloudUdpToMiddle = new DataTransferer<Cloud>();
+        private DataTransferer<Cloud> _cloudMiddleToWebRtc = new DataTransferer<Cloud>();
 
 
         public MainWindow()
@@ -60,20 +67,20 @@ namespace ServeurFusion.Core
             BtnStart.IsEnabled = false;
             BtnStop.IsEnabled = true;
 
-            var skeletonUdpListener = new UdpSkeletonListener(skeletonUdpToMiddle, 9877);
-            var cloudUdpListener = new UdpCloudPointListener(cloudUdpToMiddle, 9876);
-            var skeletonTransformationService = new TransformationSkeletonService(skeletonUdpToMiddle, skeletonMiddleToWebRtc);
-            var cloudTransformationService = new TransformationCloudPointService(cloudUdpToMiddle, cloudMiddleToWebRtc);
+            _skeletonUdpListener = new UdpSkeletonListener(_skeletonUdpToMiddle, 9877);
+            _cloudUdpListener = new UdpCloudPointListener(_cloudUdpToMiddle, 9876);
+            _skeletonTransformationService = new TransformationSkeletonService(_skeletonUdpToMiddle, _skeletonMiddleToWebRtc);
+            _cloudTransformationService = new TransformationCloudPointService(_cloudUdpToMiddle, _cloudMiddleToWebRtc);
 
-            WebRtcCommunication webRtcSender = new WebRtcCommunication(skeletonMiddleToWebRtc, cloudMiddleToWebRtc);
+            _webRtcSender = new WebRtcCommunication(_skeletonMiddleToWebRtc, _cloudMiddleToWebRtc);
 
-            skeletonUdpListener.Listen();
-            skeletonTransformationService.Prosecute();
+            _skeletonUdpListener.Listen();
+            _skeletonTransformationService.Start();
 
-            cloudUdpListener.Listen();
-            cloudTransformationService.Prosecute();
+            _cloudUdpListener.Listen();
+            _cloudTransformationService.Start();
 
-            webRtcSender.Connect();
+            _webRtcSender.Connect();
             //Console.ReadLine();
         }
 
@@ -81,6 +88,14 @@ namespace ServeurFusion.Core
         {
             BtnStart.IsEnabled = true;
             BtnStop.IsEnabled = false;
+
+            _webRtcSender.Close();
+
+            _skeletonUdpListener.Stop();
+            _skeletonTransformationService.Stop();
+
+            _cloudUdpListener.Stop();
+            _cloudTransformationService.Stop();
         }
     }
 }

@@ -19,7 +19,7 @@ namespace ServeurFusion.EnvoiRTC
     /// <summary>
     /// WebRTC protocol implementation for communication with a client
     /// </summary>
-    public class WebRtcCommunication : IDisposable
+    public class WebRtcCommunication
     {
         private SpitfireRtc _rtcPeerConnection;
 
@@ -88,7 +88,7 @@ namespace ServeurFusion.EnvoiRTC
         /// </summary>
         public void Connect()
         {
-            _signallingServer.Send("{\"type\":\"login\", \"name\":\"webrtc\"}");
+            _signallingServer.Send("{\"type\":\"login\", \"name\":\"webrtcedric\"}");
         }
 
         /// <summary>
@@ -264,23 +264,26 @@ namespace ServeurFusion.EnvoiRTC
 
             if (label == "skeletonChannel")
             {
-                _skeletonThread.Prosecute();
+                _skeletonThread.Start();
             }
 
             if (label == "cloudChannel")
             {
-                _cloudThread.Prosecute();
+                _cloudThread.Start();
             }
         }
 
         /// <summary>
         /// Closing connection
         /// </summary>
-        public void Dispose()
+        public void Close()
         {
             if (_signallingServer != null)
                 if (_signallingServer.IsAlive)
                     _signallingServer.Close();
+
+            _skeletonThread.Stop();
+            _cloudThread.Stop();
         }
     }
 }

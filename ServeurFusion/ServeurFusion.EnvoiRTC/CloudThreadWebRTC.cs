@@ -24,11 +24,13 @@ namespace ServeurFusion.EnvoiRTC
     }
     class CloudThreadWebRTC
     {
-        private CloudThreadInfos CloudThreadInfos { get; set; }
+        private Thread _cloudThread;
+        private CloudThreadInfos _cloudThreadInfos;
 
         public CloudThreadWebRTC(DataTransferer<Cloud> cloudToWebRTC, SpitfireRtc rtcPeerConnection)
         {
-            CloudThreadInfos = new CloudThreadInfos(cloudToWebRTC, rtcPeerConnection);
+            _cloudThreadInfos = new CloudThreadInfos(cloudToWebRTC, rtcPeerConnection);
+            _cloudThread = new Thread(new ParameterizedThreadStart(StartCloudThread));
         }
 
         private void StartCloudThread(object threadInfos)
@@ -38,11 +40,7 @@ namespace ServeurFusion.EnvoiRTC
 
             while (true)
             {
-                if (cloudThreadInfos.CloudToWebRTC.IsEmpty())
-                {
-                    //Thread.Sleep(1000);
-                }
-                else
+                if (!cloudThreadInfos.CloudToWebRTC.IsEmpty())
                 {
                     Cloud cloud = cloudThreadInfos.CloudToWebRTC.ConsumeData();
 
@@ -53,24 +51,22 @@ namespace ServeurFusion.EnvoiRTC
                             continue;
                         var s = cloud.Points.ElementAt(i);
                         formattedCloudMessage += $"{s.X};{s.Y};{s.Z};{s.R};{s.G};{s.B};".Replace(',', '.');
-                }
-                    //cloud.Points.ForEach(s => formattedCloudMessage += $"{s.X};{s.Y};{s.Z};{s.R};{s.G};{s.B};".Replace(',', '.'));
+                    }
                     formattedCloudMessage = formattedCloudMessage.Remove(formattedCloudMessage.Length - 1, 1);
                     cloudThreadInfos.RTCPeerConnection.DataChannelSendText("cloudChannel", formattedCloudMessage);
                 }
-
             }
         }
 
-        public void Prosecute()
+        public void Start()
         {
-            Thread cloudThread = new Thread(new ParameterizedThreadStart(StartCloudThread));
-            cloudThread.Start(CloudThreadInfos);
+            _cloudThread.Start(_cloudThreadInfos);
         }
 
         public void Stop()
         {
-            //CloudThread.Stop();
+            _cloudThread.Abort();
+            Console.WriteLine("Thread Cloud sender stopped");
         }
     }
 }
