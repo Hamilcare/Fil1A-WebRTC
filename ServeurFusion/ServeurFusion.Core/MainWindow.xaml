@@ -13,7 +13,7 @@
         <Button x:Name="BtnStop" Content="Stop" Margin="90,0,0,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="75" IsEnabled="False" Click="BtnStop_Click"/>
         <Button x:Name="BtnHideConsole" Content="Hide console" Margin="0,0,10,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Click="BtnHideConsole_Click"/>
         <Button x:Name="BtnShowConsole" Content="Show console" Margin="0,0,90,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="84" Click="BtnShowConsole_Click" />
-        <Button x:Name="BtnCustomDebug" Content="Button" HorizontalAlignment="Left" Margin="240,234,0,0" VerticalAlignment="Top" Width="75" Click="BtnCustomDebug_Click" />
+        <Button x:Name="BtnCustomDebug" Content="Test_debug&#xD;&#xA;" HorizontalAlignment="Left" Margin="240,238,0,0" VerticalAlignment="Top" Width="75" Click="BtnCustomDebug_Click" Height="18" />
     </Grid>
 </Window>
 

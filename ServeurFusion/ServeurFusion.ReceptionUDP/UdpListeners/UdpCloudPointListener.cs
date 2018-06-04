@@ -60,7 +60,9 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
                     point.Tag = data.ElementAt(currentByte);
                     currentByte++;
 
-                    cloud.Points.Add(point);
+                    //Filtre les points à (0,0,0)
+                    if(point.X != 0 && point.Y != 0 && point.Z != 0)
+                        cloud.Points.Add(point);
                 }
 
                 //Premiere frame

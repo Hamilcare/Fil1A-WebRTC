@@ -46,7 +46,7 @@ namespace ServeurFusion.EnvoiRTC
                 {
                     Cloud cloud = cloudThreadInfos.CloudToWebRTC.ConsumeData();
 
-                    string formattedCloudMessage = "";
+                    string formattedCloudMessage = String.Empty;
                     cloud.Points.ForEach(s => formattedCloudMessage += $"{s.X};{s.Y};{s.Z};{s.R};{s.G};{s.B};".Replace(',', '.'));
                     formattedCloudMessage = formattedCloudMessage.Remove(formattedCloudMessage.Length - 1, 1);
                     cloudThreadInfos.RTCPeerConnection.DataChannelSendText("cloudChannel", formattedCloudMessage);
