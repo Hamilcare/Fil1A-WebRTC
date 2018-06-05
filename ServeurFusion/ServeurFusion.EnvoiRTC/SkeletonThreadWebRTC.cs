@@ -36,15 +36,12 @@ namespace ServeurFusion.EnvoiRTC
 
             while (true)
             {
-                if (!skeletonThreadInfos.SkeletonToWebRTC.IsEmpty())
-                {
-                    Skeleton skeleton = skeletonThreadInfos.SkeletonToWebRTC.ConsumeData();
+                Skeleton skeleton = skeletonThreadInfos.SkeletonToWebRTC.ConsumeData();
 
-                    string formattedSkeletonMessage = "";
-                    skeleton.SkeletonPoints.ForEach(s => formattedSkeletonMessage += $"{s.X};{s.Y};{s.Z};{s.R};{s.G};{s.B};".Replace(',', '.'));
-                    formattedSkeletonMessage = formattedSkeletonMessage.Remove(formattedSkeletonMessage.Length - 1, 1);
-                    skeletonThreadInfos.RTCPeerConnection.DataChannelSendText("skeletonChannel", formattedSkeletonMessage);
-                }
+                string formattedSkeletonMessage = "";
+                skeleton.SkeletonPoints.ForEach(s => formattedSkeletonMessage += $"{s.X};{s.Y};{s.Z};{s.R};{s.G};{s.B};".Replace(',', '.'));
+                formattedSkeletonMessage = formattedSkeletonMessage.Remove(formattedSkeletonMessage.Length - 1, 1);
+                skeletonThreadInfos.RTCPeerConnection.DataChannelSendText("skeletonChannel", formattedSkeletonMessage);
             }
         }
 
