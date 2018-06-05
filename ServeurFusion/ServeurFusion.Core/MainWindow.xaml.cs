@@ -78,8 +78,6 @@ namespace ServeurFusion.Core
 
             _kinectCloudList.ForEach(kcList => kcList.Listen());
             _cloudTransformationService.Start();
-
-            _webRtcSender.Connect();
         }
 
         private void BtnStop_Click(object sender, RoutedEventArgs e)

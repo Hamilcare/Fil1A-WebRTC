@@ -39,8 +39,7 @@ loginBtn.addEventListener("click", function(event) {
 });
 
 connectToOtherUsernameBtn.addEventListener("click", function(event) {
-    if (!pc)
-        start(true);
+    start(false);
 });
 
 //Easier dialog with signaling channel
@@ -83,14 +82,14 @@ function start(isInitiator) {
         //.catch(logError);
     };
 
-    if (isInitiator) {
+    /*if (isInitiator) {
         // create data channel and setup chat
         channelSkeleton = pc.createDataChannel("skeletonChannel");
         setupSkeletonChannel();
 
         channelCloud = pc.createDataChannel("cloudChannel");
         setupCloudChannel();
-    } else {
+    } else {*/
         // setup chat on incoming data channel
 
         pc.ondatachannel = function(evt) {
@@ -103,7 +102,7 @@ function start(isInitiator) {
                 setupCloudChannel();
             }
         };
-    }
+    //}
 }
 
 
