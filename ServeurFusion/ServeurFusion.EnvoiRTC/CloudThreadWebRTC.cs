@@ -1,8 +1,11 @@
-﻿using ServeurFusion.ReceptionUDP.Datas.PointCloud;
+﻿using ServeurFusion.ReceptionUDP.Datas.Cloud;
+using ServeurFusion.ReceptionUDP.Datas.PointCloud;
 using Spitfire;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 
 namespace ServeurFusion.EnvoiRTC
@@ -37,7 +40,28 @@ namespace ServeurFusion.EnvoiRTC
             while (true)
             {
                 Cloud cloud = cloudThreadInfos.CloudToWebRTC.Take();
+                /*
+                //On envoi les points par paquets de nbPointsParPaquet
+                int nbPointsParPaquet = 50;
+                int cpt1 = 0;
+                while(cpt1 + nbPointsParPaquet <= cloud.Points.Count)
+                {
+                    var pointsToSend = cloud.Points.GetRange(cpt1, nbPointsParPaquet);
+                    string formattedMsg = FormateMessage(cloud.Timestamp, pointsToSend);
 
+                    cloudThreadInfos.RTCPeerConnection.DataChannelSendText("cloudChannel", formattedMsg);
+                    cpt1 += nbPointsParPaquet;
+                }
+                //On envoi le reste (s'il y en a)
+                if(cpt1 < cloud.Points.Count)
+                {
+                    var pointsToSend = cloud.Points.GetRange(cpt1, cloud.Points.Count - cpt1);
+                    string formattedMsg = FormateMessage(cloud.Timestamp, pointsToSend);
+
+                    cloudThreadInfos.RTCPeerConnection.DataChannelSendText("cloudChannel", formattedMsg);
+                }
+                */
+                //Ancienne méthode pour envoyer tout en une trame (pb : trame découpée par SpitFire)
                 string formattedCloudMessage = String.Empty;
                 for(int i = 0; i < cloud.Points.Count; i++)
                 {
@@ -51,6 +75,18 @@ namespace ServeurFusion.EnvoiRTC
             }
         }
 
+        private string FormateMessage(long timestamp, IList<CloudPoint> points)
+        {
+            StringBuilder formattedMsg = new StringBuilder();
+            formattedMsg.Append(timestamp);
+            foreach(var point in points)
+            {
+                formattedMsg.Append($";{point.X};{point.Y};{point.Z};{point.R};{point.G};{point.B}".Replace(',', '.'));
+            }
+
+            return formattedMsg.ToString();
+        }
+
         public void Start()
         {
             _cloudThread.Start(_cloudThreadInfos);
@@ -59,7 +95,7 @@ namespace ServeurFusion.EnvoiRTC
         public void Stop()
         {
             _cloudThread.Abort();
-            Console.WriteLine("Thread Cloud sender stopped");
+            Console.WriteLine("Thread Cloud sender stopped"); 
         }
     }
 }
