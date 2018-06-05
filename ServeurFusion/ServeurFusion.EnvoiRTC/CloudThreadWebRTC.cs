@@ -2,6 +2,7 @@
 using Spitfire;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
@@ -10,9 +11,9 @@ namespace ServeurFusion.EnvoiRTC
     public class CloudThreadInfos
     {
         public BlockingCollection<Cloud> CloudToWebRTC { get; set; }
-        public SpitfireRtc RTCPeerConnection { get; set; }
+        public Dictionary<string, SpitfireRtc> RTCPeerConnection { get; set; }
 
-        public CloudThreadInfos(BlockingCollection<Cloud> cloudToWebRTC, SpitfireRtc rtcPeerConnection)
+        public CloudThreadInfos(BlockingCollection<Cloud> cloudToWebRTC, Dictionary<string, SpitfireRtc> rtcPeerConnection)
         {
             CloudToWebRTC = cloudToWebRTC;
             RTCPeerConnection = rtcPeerConnection;
@@ -23,7 +24,7 @@ namespace ServeurFusion.EnvoiRTC
         private Thread _cloudThread;
         private CloudThreadInfos _cloudThreadInfos;
 
-        public CloudThreadWebRTC(BlockingCollection<Cloud> cloudToWebRTC, SpitfireRtc rtcPeerConnection)
+        public CloudThreadWebRTC(BlockingCollection<Cloud> cloudToWebRTC, Dictionary<string, SpitfireRtc> rtcPeerConnection)
         {
             _cloudThreadInfos = new CloudThreadInfos(cloudToWebRTC, rtcPeerConnection);
             _cloudThread = new Thread(new ParameterizedThreadStart(StartCloudThread));
@@ -47,7 +48,10 @@ namespace ServeurFusion.EnvoiRTC
                     formattedCloudMessage += $"{s.X};{s.Y};{s.Z};{s.R};{s.G};{s.B};".Replace(',', '.');
                 }
                 formattedCloudMessage = formattedCloudMessage.Remove(formattedCloudMessage.Length - 1, 1);
-                cloudThreadInfos.RTCPeerConnection.DataChannelSendText("cloudChannel", formattedCloudMessage);
+                foreach (KeyValuePair<string, SpitfireRtc> peer in cloudThreadInfos.RTCPeerConnection)
+                {
+                    peer.Value.DataChannelSendText("cloudChannel", formattedCloudMessage);
+                }
             }
         }
 

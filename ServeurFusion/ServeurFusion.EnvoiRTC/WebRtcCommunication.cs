@@ -18,9 +18,9 @@ namespace ServeurFusion.EnvoiRTC
     {
         private WebSocket _signallingServer;
 
-        private List<SkeletonThreadWebRTC> _skeletonThread;
+        private SkeletonThreadWebRTC _skeletonThread;
 
-        private List<CloudThreadWebRTC> _cloudThread;
+        private CloudThreadWebRTC _cloudThread;
 
         private BlockingCollection<Skeleton> _skeletonToWebRtc { get; set; }
 
@@ -38,8 +38,11 @@ namespace ServeurFusion.EnvoiRTC
             _skeletonToWebRtc = skeletonToWebRtc;
             _cloudToWebRtc = cloudToWebRtc;
 
-            _skeletonThread = new List<SkeletonThreadWebRTC>();
-            _cloudThread = new List<CloudThreadWebRTC>();
+            _skeletonThread = new SkeletonThreadWebRTC(_skeletonToWebRtc, _peers);
+            _cloudThread = new CloudThreadWebRTC(_cloudToWebRtc, _peers);
+
+            _skeletonThread.Start();
+            _cloudThread.Start();
 
             // Setup signaling server
             _signallingServer = new WebSocket("ws://barnab2.tk:9090");
@@ -92,11 +95,6 @@ namespace ServeurFusion.EnvoiRTC
             });
 
             SetupCallbacks(rtcPeerConnection);
-
-            _skeletonThread.Add(new SkeletonThreadWebRTC(_skeletonToWebRtc, rtcPeerConnection));
-            _skeletonThread.Last().Start();
-            _cloudThread.Add(new CloudThreadWebRTC(_cloudToWebRtc, rtcPeerConnection));
-            _cloudThread.Last().Start();
 
             return rtcPeerConnection;
         }
@@ -305,8 +303,8 @@ namespace ServeurFusion.EnvoiRTC
                 if (_signallingServer.IsAlive)
                     _signallingServer.Close();
 
-            _skeletonThread.ForEach(st => st.Stop());
-            _cloudThread.ForEach(ct => ct.Stop());
+            _skeletonThread.Stop();
+            _cloudThread.Stop();
         }
     }
 }
