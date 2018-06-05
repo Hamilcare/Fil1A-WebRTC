@@ -65,15 +65,33 @@ namespace ServeurFusion.EnvoiRTC
 #endif
             SetupCallbacks();
 
-            // Adding Stun server
-            _rtcPeerConnection.AddServerConfig(new Spitfire.ServerConfig()
+            bool started = _rtcPeerConnection.InitializePeerConnection();
+        }
+
+        public void Start()
+        {
+            _rtcPeerConnection.AddServerConfig(new ServerConfig()
             {
                 Host = "stun.1.google.com",
                 Port = 19302,
                 Type = ServerType.Stun
             });
 
-            bool started = _rtcPeerConnection.InitializePeerConnection();
+            _rtcPeerConnection.CreateDataChannel(new DataChannelOptions()
+            {
+                Id = 1,
+                Label = "skeletonChannel"
+            });
+
+            _rtcPeerConnection.CreateDataChannel(new DataChannelOptions()
+            {
+                Id = 3,
+                Label = "cloudChannel"
+            });
+
+            _rtcPeerConnection.OnDataChannelOpen += DataChannelOpen;
+            _rtcPeerConnection.OnIceCandidate += OnIceCandidate;
+
         }
 
         /// <summary>
@@ -145,8 +163,8 @@ namespace ServeurFusion.EnvoiRTC
         /// </summary>
         private void SetupCallbacks()
         {
-            _rtcPeerConnection.OnIceCandidate += OnIceCandidate;
-            _rtcPeerConnection.OnDataChannelOpen += DataChannelOpen;
+            //_rtcPeerConnection.OnIceCandidate += OnIceCandidate;
+            //_rtcPeerConnection.OnDataChannelOpen += DataChannelOpen;
             _rtcPeerConnection.OnDataChannelClose += OnDataChannelClose;
             _rtcPeerConnection.OnDataMessage += HandleMessage;
             _rtcPeerConnection.OnIceStateChange += IceStateChange;
