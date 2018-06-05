@@ -1,5 +1,4 @@
-﻿using ServeurFusion.ReceptionUDP.Datas;
-using ServeurFusion.ReceptionUDP.Datas.Cloud;
+﻿using ServeurFusion.ReceptionUDP.Datas.Cloud;
 using ServeurFusion.ReceptionUDP.Datas.PointCloud;
 using System;
 using System.Collections.Concurrent;
@@ -7,17 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace ServeurFusion.ReceptionUDP.UdpListeners
 {
-    public class UdpCloudPointListener : UdpListener<Cloud>
+    public class UdpCloudListener : UdpListener<Cloud>
     {
         private UdpClient _udp;
 
-        public UdpCloudPointListener(BlockingCollection<Cloud> dataTransferer, int port)
+        public UdpCloudListener(BlockingCollection<Cloud> dataTransferer, int port)
         {
             _udpThreadInfos = new UdpThreadInfos<Cloud>(dataTransferer, port);
         }
@@ -25,7 +21,7 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
         override protected void StartListening(object threadInfos)
         {
             UdpThreadInfos<Cloud> ti = (UdpThreadInfos<Cloud>)threadInfos;
-            Console.WriteLine("Thread udp démarré");
+            Console.WriteLine("UdpCloudListener thread started");
 
             _udp = new UdpClient(ti.Port);
             IPEndPoint remoteEP = new IPEndPoint(IPAddress.Any, ti.Port);
@@ -63,21 +59,23 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
                     point.Tag = data.ElementAt(currentByte);
                     currentByte++;
 
-                    //Filtre les points à (0,0,0)
+                    // Filter points (0,0,0)
                     if(point.X != 0 && point.Y != 0 && point.Z != 0)
                         cloud.Points.Add(point);
                 }
 
-                //Premiere frame
+                // First frame
                 if (aggregateCloud == null)
                     aggregateCloud = cloud;
-                //Si on change de frame : on envoi la derniere reçue completement
+
+                // If changing frame, send last complete received one
                 else if (aggregateCloud.Timestamp != cloud.Timestamp)
                 {
                     ti.DataTransferer.Add(aggregateCloud);
                     aggregateCloud = cloud;
                 }
-                //Sinon c'est qu'on est tjs sur la même frame : on aggrege
+
+                // If same frame : aggregate
                 else
                     aggregateCloud.Points.AddRange(cloud.Points);
             }
@@ -85,6 +83,7 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
 
         override protected void StopListening()
         {
+            Console.WriteLine("Stop listening on UdpCloudListener thread");
             _udp.Close();
         }
     }

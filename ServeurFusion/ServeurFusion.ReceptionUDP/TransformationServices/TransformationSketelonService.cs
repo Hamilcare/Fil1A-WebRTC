@@ -17,7 +17,7 @@ namespace ServeurFusion.ReceptionUDP
         override protected void Launch(object threadInfos)
         {
             MiddleThreadInfos<Skeleton> ti = (MiddleThreadInfos<Skeleton>)threadInfos;
-            Console.WriteLine("Thread middle démarré");
+            Console.WriteLine("TransformationSkeleton thread started");
             
             while (true)
             {

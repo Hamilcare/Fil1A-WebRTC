@@ -19,7 +19,7 @@ namespace ServeurFusion.ReceptionUDP
         override protected void StartListening(object threadInfos)
         {
             UdpThreadInfos<Skeleton> ti = (UdpThreadInfos<Skeleton>)threadInfos;
-            Console.WriteLine("Thread udp démarré");
+            Console.WriteLine("UdpSkeletonListener thread started");
 
             _udp = new UdpClient(ti.Port);
             IPEndPoint remoteEP = new IPEndPoint(IPAddress.Any, ti.Port);
@@ -64,6 +64,7 @@ namespace ServeurFusion.ReceptionUDP
 
         override protected void StopListening()
         {
+            Console.WriteLine("Stop listening on UdpSkeletonListener thread");
             _udp.Close();
         }
     }

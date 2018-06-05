@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Windows;
 using ServeurFusion.EnvoiRTC;
 using ServeurFusion.ReceptionUDP;
@@ -17,18 +18,17 @@ namespace ServeurFusion.Core
     {
         private WebRtcCommunication _webRtcSender;
 
-        private UdpSkeletonListener _skeletonUdpListener;
-        private UdpCloudPointListener _cloudUdpListener;
-        private TransformationSkeletonService _skeletonTransformationService;
-        private TransformationCloudPointService _cloudTransformationService;
+        private List<UdpSkeletonListener> _kinectSkeletonList;
+        private List<UdpCloudListener> _kinectCloudList;
 
-        //Structures de données 
+        private TransformationSkeletonService _skeletonTransformationService;
+        private TransformationCloudService _cloudTransformationService;
+
         private BlockingCollection<Skeleton> _skeletonUdpToMiddle = new BlockingCollection<Skeleton>();
         private BlockingCollection<Skeleton> _skeletonMiddleToWebRtc = new BlockingCollection<Skeleton>();
 
         private BlockingCollection<Cloud> _cloudUdpToMiddle = new BlockingCollection<Cloud>();
         private BlockingCollection<Cloud> _cloudMiddleToWebRtc = new BlockingCollection<Cloud>();
-
 
         public MainWindow()
         {
@@ -52,25 +52,34 @@ namespace ServeurFusion.Core
 
         private void BtnStart_Click(object sender, RoutedEventArgs e)
         {
-            //Désactive le bouton start
+            // Disable start button
             BtnStart.IsEnabled = false;
             BtnStop.IsEnabled = true;
 
-            _skeletonUdpListener = new UdpSkeletonListener(_skeletonUdpToMiddle, 9877);
-            _cloudUdpListener = new UdpCloudPointListener(_cloudUdpToMiddle, 9876);
+            _kinectSkeletonList = new List<UdpSkeletonListener>
+            {
+                new UdpSkeletonListener(_skeletonUdpToMiddle, 9877),
+                new UdpSkeletonListener(_skeletonUdpToMiddle, 9887)
+            };
+
+            _kinectCloudList = new List<UdpCloudListener>
+            {
+                new UdpCloudListener(_cloudUdpToMiddle, 9876),
+                new UdpCloudListener(_cloudUdpToMiddle, 9886)
+            };
+
             _skeletonTransformationService = new TransformationSkeletonService(_skeletonUdpToMiddle, _skeletonMiddleToWebRtc);
-            _cloudTransformationService = new TransformationCloudPointService(_cloudUdpToMiddle, _cloudMiddleToWebRtc);
+            _cloudTransformationService = new TransformationCloudService(_cloudUdpToMiddle, _cloudMiddleToWebRtc);
 
             _webRtcSender = new WebRtcCommunication(_skeletonMiddleToWebRtc, _cloudMiddleToWebRtc);
 
-            _skeletonUdpListener.Listen();
+            _kinectSkeletonList.ForEach(ksList => ksList.Listen());
             _skeletonTransformationService.Start();
 
-            _cloudUdpListener.Listen();
+            _kinectCloudList.ForEach(kcList => kcList.Listen());
             _cloudTransformationService.Start();
 
             _webRtcSender.Connect();
-            //Console.ReadLine();
         }
 
         private void BtnStop_Click(object sender, RoutedEventArgs e)
@@ -80,10 +89,10 @@ namespace ServeurFusion.Core
 
             _webRtcSender.Close();
 
-            _skeletonUdpListener.Stop();
+            _kinectSkeletonList.ForEach(ksList => ksList.Stop());
             _skeletonTransformationService.Stop();
 
-            _cloudUdpListener.Stop();
+            _kinectCloudList.ForEach(kcList => kcList.Stop());
             _cloudTransformationService.Stop();
         }
     }

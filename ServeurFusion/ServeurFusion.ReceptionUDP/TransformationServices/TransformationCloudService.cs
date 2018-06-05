@@ -4,10 +4,10 @@ using System.Collections.Concurrent;
 
 namespace ServeurFusion.ReceptionUDP.TransformationServices
 {
-    public class TransformationCloudPointService : TransformationService<Cloud>
+    public class TransformationCloudService : TransformationService<Cloud>
     {
 
-        public TransformationCloudPointService(BlockingCollection<Cloud> udpToMiddle, BlockingCollection<Cloud> middleToWebRtc)
+        public TransformationCloudService(BlockingCollection<Cloud> udpToMiddle, BlockingCollection<Cloud> middleToWebRtc)
         {
             _middleThreadInfos = new MiddleThreadInfos<Cloud>(udpToMiddle, middleToWebRtc);
         }
@@ -15,7 +15,7 @@ namespace ServeurFusion.ReceptionUDP.TransformationServices
         override protected void Launch(object threadInfos)
         {
             MiddleThreadInfos<Cloud> ti = (MiddleThreadInfos<Cloud>)threadInfos;
-            Console.WriteLine("Thread middle démarré");
+            Console.WriteLine("TransformationCloud thread started");
 
             while (true)
             {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Threading;
 
 namespace ServeurFusion.ReceptionUDP.TransformationServices
@@ -17,6 +18,7 @@ namespace ServeurFusion.ReceptionUDP.TransformationServices
 
         public void Stop()
         {
+            Console.WriteLine("TransformationSkeleton thread stopped");
             _transformationServiceThread.Abort();
         }
 
