@@ -1,10 +1,5 @@
-﻿using ServeurFusion.ReceptionUDP.Datas;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Concurrent;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ServeurFusion.ReceptionUDP.UdpListeners
 {
@@ -33,10 +28,10 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
 
     public class UdpThreadInfos<T>
     {
-        public DataTransferer<T> DataTransferer { get; set; }
+        public BlockingCollection<T> DataTransferer { get; set; }
         public int Port { get; set; }
 
-        public UdpThreadInfos(DataTransferer<T> dataTransferer, int port)
+        public UdpThreadInfos(BlockingCollection<T> dataTransferer, int port)
         {
             DataTransferer = dataTransferer;
             Port = port;

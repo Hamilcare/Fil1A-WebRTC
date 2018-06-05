@@ -1,18 +1,13 @@
-﻿using ServeurFusion.ReceptionUDP.Datas;
-using ServeurFusion.ReceptionUDP.Datas.PointCloud;
+﻿using ServeurFusion.ReceptionUDP.Datas.PointCloud;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace ServeurFusion.ReceptionUDP.TransformationServices
 {
     public class TransformationCloudPointService : TransformationService<Cloud>
     {
 
-        public TransformationCloudPointService(DataTransferer<Cloud> udpToMiddle, DataTransferer<Cloud> middleToWebRtc)
+        public TransformationCloudPointService(BlockingCollection<Cloud> udpToMiddle, BlockingCollection<Cloud> middleToWebRtc)
         {
             _middleThreadInfos = new MiddleThreadInfos<Cloud>(udpToMiddle, middleToWebRtc);
         }
@@ -24,8 +19,8 @@ namespace ServeurFusion.ReceptionUDP.TransformationServices
 
             while (true)
             {
-                var data = ti._udpToMiddle.ConsumeData();
-                ti._middleToWebRtc.AddData(data);
+                var data = ti._udpToMiddle.Take(); ;
+                ti._middleToWebRtc.Add(data);
             }
         }
     }

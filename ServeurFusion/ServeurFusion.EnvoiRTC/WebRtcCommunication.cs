@@ -1,18 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ServeurFusion.ReceptionUDP.Datas;
-using ServeurFusion.ReceptionUDP;
 using Spitfire;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using WebSocketSharp;
 using ServeurFusion.ReceptionUDP.Datas.PointCloud;
+using System.Collections.Concurrent;
 
 namespace ServeurFusion.EnvoiRTC
 {
@@ -29,14 +22,14 @@ namespace ServeurFusion.EnvoiRTC
 
         private CloudThreadWebRTC _cloudThread;
 
-        private DataTransferer<Skeleton> _skeletonToWebRtc { get; set; }
+        private BlockingCollection<Skeleton> _skeletonToWebRtc { get; set; }
 
-        private DataTransferer<Cloud> _cloudToWebRtc { get; set; }
+        private BlockingCollection<Cloud> _cloudToWebRtc { get; set; }
 
         // TODO: List of users for multi-clients implementation ?
         private string _connectedUser;
 
-        public WebRtcCommunication(DataTransferer<Skeleton> skeletonToWebRtc, DataTransferer<Cloud> cloudToWebRtc)
+        public WebRtcCommunication(BlockingCollection<Skeleton> skeletonToWebRtc, BlockingCollection<Cloud> cloudToWebRtc)
         {
             //SpitfireRtc.EnableLogging();
             _skeletonToWebRtc = skeletonToWebRtc;

@@ -1,17 +1,17 @@
-﻿using ServeurFusion.ReceptionUDP;
-using ServeurFusion.ReceptionUDP.Datas;
+﻿using ServeurFusion.ReceptionUDP.Datas;
 using Spitfire;
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
 
 namespace ServeurFusion.EnvoiRTC
 {
     public class SkeletonThreadInfos
     {
-        public DataTransferer<Skeleton> SkeletonToWebRTC { get; set; }
+        public BlockingCollection<Skeleton> SkeletonToWebRTC { get; set; }
         public SpitfireRtc RTCPeerConnection { get; set; }
 
-        public SkeletonThreadInfos(DataTransferer<Skeleton> skeletonToWebRTC, SpitfireRtc rtcPeerConnection)
+        public SkeletonThreadInfos(BlockingCollection<Skeleton> skeletonToWebRTC, SpitfireRtc rtcPeerConnection)
         {
             SkeletonToWebRTC = skeletonToWebRTC;
             RTCPeerConnection = rtcPeerConnection;
@@ -23,7 +23,7 @@ namespace ServeurFusion.EnvoiRTC
         private Thread _skeletonThread;
         private SkeletonThreadInfos _skeletonThreadInfos;
 
-        public SkeletonThreadWebRTC(DataTransferer<Skeleton> skeletonToWebRTC, SpitfireRtc rtcPeerConnection)
+        public SkeletonThreadWebRTC(BlockingCollection<Skeleton> skeletonToWebRTC, SpitfireRtc rtcPeerConnection)
         {
             _skeletonThreadInfos = new SkeletonThreadInfos(skeletonToWebRTC, rtcPeerConnection);
             _skeletonThread = new Thread(new ParameterizedThreadStart(StartSkeletonThread));
@@ -36,7 +36,7 @@ namespace ServeurFusion.EnvoiRTC
 
             while (true)
             {
-                Skeleton skeleton = skeletonThreadInfos.SkeletonToWebRTC.ConsumeData();
+                Skeleton skeleton = skeletonThreadInfos.SkeletonToWebRTC.Take();
 
                 string formattedSkeletonMessage = "";
                 skeleton.SkeletonPoints.ForEach(s => formattedSkeletonMessage += $"{s.X};{s.Y};{s.Z};{s.R};{s.G};{s.B};".Replace(',', '.'));

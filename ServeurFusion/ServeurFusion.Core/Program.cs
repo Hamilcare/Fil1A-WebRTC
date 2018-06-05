@@ -1,15 +1,5 @@
-﻿using ServeurFusion.EnvoiRTC;
-using ServeurFusion.ReceptionUDP;
-using ServeurFusion.ReceptionUDP.Datas;
-using ServeurFusion.ReceptionUDP.Datas.PointCloud;
-using ServeurFusion.ReceptionUDP.UdpListeners;
-using ServeurFusion.ReceptionUDP.TransformationServices;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace ServeurFusion.Core

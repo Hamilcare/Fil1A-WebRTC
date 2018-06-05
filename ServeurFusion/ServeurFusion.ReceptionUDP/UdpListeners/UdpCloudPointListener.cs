@@ -2,6 +2,7 @@
 using ServeurFusion.ReceptionUDP.Datas.Cloud;
 using ServeurFusion.ReceptionUDP.Datas.PointCloud;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -16,7 +17,7 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
     {
         private UdpClient _udp;
 
-        public UdpCloudPointListener(DataTransferer<Cloud> dataTransferer, int port)
+        public UdpCloudPointListener(BlockingCollection<Cloud> dataTransferer, int port)
         {
             _udpThreadInfos = new UdpThreadInfos<Cloud>(dataTransferer, port);
         }
@@ -73,15 +74,12 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
                 //Si on change de frame : on envoi la derniere reçue completement
                 else if (aggregateCloud.Timestamp != cloud.Timestamp)
                 {
-                    ti.DataTransferer.AddData(aggregateCloud);
+                    ti.DataTransferer.Add(aggregateCloud);
                     aggregateCloud = cloud;
                 }
                 //Sinon c'est qu'on est tjs sur la même frame : on aggrege
                 else
                     aggregateCloud.Points.AddRange(cloud.Points);
-
-
-                Console.WriteLine("coucou while true udp cloud");
             }
         }
 

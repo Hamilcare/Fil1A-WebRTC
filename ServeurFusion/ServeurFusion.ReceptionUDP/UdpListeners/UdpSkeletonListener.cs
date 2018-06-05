@@ -1,17 +1,17 @@
 ﻿using ServeurFusion.ReceptionUDP.Datas;
 using ServeurFusion.ReceptionUDP.UdpListeners;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 
 namespace ServeurFusion.ReceptionUDP
 {
     public class UdpSkeletonListener : UdpListener<Skeleton>
     {
         private UdpClient _udp;
-        public UdpSkeletonListener(DataTransferer<Skeleton> dataTransferer, int port)
+        public UdpSkeletonListener(BlockingCollection<Skeleton> dataTransferer, int port)
         {
             _udpThreadInfos = new UdpThreadInfos<Skeleton>(dataTransferer, port);
         }
@@ -58,9 +58,7 @@ namespace ServeurFusion.ReceptionUDP
                     skeleton.SkeletonPoints.Add(skeletonPoint);
                 }
                 
-                ti.DataTransferer.AddData(skeleton);
-
-                Console.WriteLine("coucou while true udp skeleton");
+                ti.DataTransferer.Add(skeleton);
             }
         }
 

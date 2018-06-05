@@ -1,6 +1,7 @@
 ﻿using ServeurFusion.ReceptionUDP.Datas;
 using ServeurFusion.ReceptionUDP.TransformationServices;
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
 
 namespace ServeurFusion.ReceptionUDP
@@ -8,7 +9,7 @@ namespace ServeurFusion.ReceptionUDP
 
     public class TransformationSkeletonService : TransformationService<Skeleton>
     {
-        public TransformationSkeletonService(DataTransferer<Skeleton> udpToMiddle, DataTransferer<Skeleton> middleToWebRtc)
+        public TransformationSkeletonService(BlockingCollection<Skeleton> udpToMiddle, BlockingCollection<Skeleton> middleToWebRtc)
         {
             _middleThreadInfos = new MiddleThreadInfos<Skeleton>(udpToMiddle, middleToWebRtc);
         }
@@ -20,8 +21,8 @@ namespace ServeurFusion.ReceptionUDP
             
             while (true)
             {
-                var data = ti._udpToMiddle.ConsumeData();
-                ti._middleToWebRtc.AddData(data);
+                var data = ti._udpToMiddle.Take();
+                ti._middleToWebRtc.Add(data);
             }
         }
     }

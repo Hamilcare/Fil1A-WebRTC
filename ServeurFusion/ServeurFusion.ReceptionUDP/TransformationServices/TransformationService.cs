@@ -1,10 +1,5 @@
-﻿using ServeurFusion.ReceptionUDP.Datas;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Concurrent;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ServeurFusion.ReceptionUDP.TransformationServices
 {
@@ -30,10 +25,10 @@ namespace ServeurFusion.ReceptionUDP.TransformationServices
 
     public class MiddleThreadInfos<T>
     {
-        public DataTransferer<T> _udpToMiddle { get; set; }
-        public DataTransferer<T> _middleToWebRtc { get; set; }
+        public BlockingCollection<T> _udpToMiddle { get; set; }
+        public BlockingCollection<T> _middleToWebRtc { get; set; }
 
-        public MiddleThreadInfos(DataTransferer<T> udpToMiddle, DataTransferer<T> middleToWebRtc)
+        public MiddleThreadInfos(BlockingCollection<T> udpToMiddle, BlockingCollection<T> middleToWebRtc)
         {
             _udpToMiddle = udpToMiddle;
             _middleToWebRtc = middleToWebRtc;

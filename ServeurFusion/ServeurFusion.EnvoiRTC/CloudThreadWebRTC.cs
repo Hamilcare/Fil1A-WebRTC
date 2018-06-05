@@ -1,22 +1,18 @@
-﻿using ServeurFusion.ReceptionUDP;
-using ServeurFusion.ReceptionUDP.Datas;
-using ServeurFusion.ReceptionUDP.Datas.PointCloud;
+﻿using ServeurFusion.ReceptionUDP.Datas.PointCloud;
 using Spitfire;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ServeurFusion.EnvoiRTC
 {
     public class CloudThreadInfos
     {
-        public DataTransferer<Cloud> CloudToWebRTC { get; set; }
+        public BlockingCollection<Cloud> CloudToWebRTC { get; set; }
         public SpitfireRtc RTCPeerConnection { get; set; }
 
-        public CloudThreadInfos(DataTransferer<Cloud> cloudToWebRTC, SpitfireRtc rtcPeerConnection)
+        public CloudThreadInfos(BlockingCollection<Cloud> cloudToWebRTC, SpitfireRtc rtcPeerConnection)
         {
             CloudToWebRTC = cloudToWebRTC;
             RTCPeerConnection = rtcPeerConnection;
@@ -27,7 +23,7 @@ namespace ServeurFusion.EnvoiRTC
         private Thread _cloudThread;
         private CloudThreadInfos _cloudThreadInfos;
 
-        public CloudThreadWebRTC(DataTransferer<Cloud> cloudToWebRTC, SpitfireRtc rtcPeerConnection)
+        public CloudThreadWebRTC(BlockingCollection<Cloud> cloudToWebRTC, SpitfireRtc rtcPeerConnection)
         {
             _cloudThreadInfos = new CloudThreadInfos(cloudToWebRTC, rtcPeerConnection);
             _cloudThread = new Thread(new ParameterizedThreadStart(StartCloudThread));
@@ -40,12 +36,12 @@ namespace ServeurFusion.EnvoiRTC
 
             while (true)
             {
-                Cloud cloud = cloudThreadInfos.CloudToWebRTC.ConsumeData();
+                Cloud cloud = cloudThreadInfos.CloudToWebRTC.Take();
 
                 string formattedCloudMessage = String.Empty;
                 for(int i = 0; i < cloud.Points.Count; i++)
                 {
-                    if (i % 50 != 0)
+                    if (i % 35 != 0)
                         continue;
                     var s = cloud.Points.ElementAt(i);
                     formattedCloudMessage += $"{s.X};{s.Y};{s.Z};{s.R};{s.G};{s.B};".Replace(',', '.');

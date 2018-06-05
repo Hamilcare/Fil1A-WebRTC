@@ -41,7 +41,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Datas\DataTransferer.cs" />
     <Compile Include="Datas\Skeleton\Skeleton.cs" />
     <Compile Include="Datas\Skeleton\SkeletonPoint.cs" />
     <Compile Include="Datas\Cloud\Cloud.cs" />
