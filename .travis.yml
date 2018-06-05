@@ -1,0 +1,7 @@
+language: csharp
+solution: ServeurFusion.sln
+install:
+  - cd ServeurFusion
+  - nuget restore ServeurFusion.sln
+script:
+  - xbuild /p:Configuration=Release ServeurFusion.sln
