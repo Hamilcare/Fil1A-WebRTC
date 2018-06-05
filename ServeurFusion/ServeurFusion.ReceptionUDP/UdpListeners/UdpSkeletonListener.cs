@@ -10,23 +10,24 @@ namespace ServeurFusion.ReceptionUDP
 {
     public class UdpSkeletonListener : UdpListener<Skeleton>
     {
+        private UdpClient _udp;
         public UdpSkeletonListener(DataTransferer<Skeleton> dataTransferer, int port)
         {
-            this._udpThreadInfos = new UdpThreadInfos<Skeleton>(dataTransferer, port);
+            _udpThreadInfos = new UdpThreadInfos<Skeleton>(dataTransferer, port);
         }
 
         override protected void StartListening(object threadInfos)
         {
             UdpThreadInfos<Skeleton> ti = (UdpThreadInfos<Skeleton>)threadInfos;
-            Console.WriteLine("Thread udp démarrée");
+            Console.WriteLine("Thread udp démarré");
 
-            UdpClient udp = new UdpClient(ti._port);
-            var remoteEP = new IPEndPoint(IPAddress.Any, 9876);
+            _udp = new UdpClient(ti.Port);
+            IPEndPoint remoteEP = new IPEndPoint(IPAddress.Any, ti.Port);
 
             while (true)
             {
                 // Receiving frames from KinectStreamer
-                var data = udp.Receive(ref remoteEP);
+                var data = _udp.Receive(ref remoteEP);
                 int count = 0;
                 // Processing Skeleton
                 Skeleton skeleton = new Skeleton()
@@ -57,9 +58,15 @@ namespace ServeurFusion.ReceptionUDP
                     skeleton.SkeletonPoints.Add(skeletonPoint);
                 }
                 
-                ti._dataTransferer.AddData(skeleton);
-                //Console.WriteLine("Ajout d'un skeleton à la liste : " +  skeleton.ToString());
+                ti.DataTransferer.AddData(skeleton);
+
+                Console.WriteLine("coucou while true udp skeleton");
             }
+        }
+
+        override protected void StopListening()
+        {
+            _udp.Close();
         }
     }
 }

@@ -14,24 +14,26 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
 {
     public class UdpCloudPointListener : UdpListener<Cloud>
     {
+        private UdpClient _udp;
+
         public UdpCloudPointListener(DataTransferer<Cloud> dataTransferer, int port)
         {
-            this._udpThreadInfos = new UdpThreadInfos<Cloud>(dataTransferer, port);
+            _udpThreadInfos = new UdpThreadInfos<Cloud>(dataTransferer, port);
         }
 
         override protected void StartListening(object threadInfos)
         {
             UdpThreadInfos<Cloud> ti = (UdpThreadInfos<Cloud>)threadInfos;
-            Console.WriteLine("Thread udp démarrée");
+            Console.WriteLine("Thread udp démarré");
 
-            UdpClient udp = new UdpClient(ti._port);
-            var remoteEP = new IPEndPoint(IPAddress.Any, 9876);
+            _udp = new UdpClient(ti.Port);
+            IPEndPoint remoteEP = new IPEndPoint(IPAddress.Any, ti.Port);
 
             Cloud aggregateCloud = null;
 
             while (true)
             {
-                var data = udp.Receive(ref remoteEP);
+                var data = _udp.Receive(ref remoteEP);
                 var cloud = new Cloud
                 {
                     Timestamp = BitConverter.ToInt64(data, 0),
@@ -71,15 +73,21 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
                 //Si on change de frame : on envoi la derniere reçue completement
                 else if (aggregateCloud.Timestamp != cloud.Timestamp)
                 {
-                    ti._dataTransferer.AddData(aggregateCloud);
+                    ti.DataTransferer.AddData(aggregateCloud);
                     aggregateCloud = cloud;
                 }
                 //Sinon c'est qu'on est tjs sur la même frame : on aggrege
                 else
                     aggregateCloud.Points.AddRange(cloud.Points);
 
+
+                Console.WriteLine("coucou while true udp cloud");
             }
         }
 
+        override protected void StopListening()
+        {
+            _udp.Close();
+        }
     }
 }

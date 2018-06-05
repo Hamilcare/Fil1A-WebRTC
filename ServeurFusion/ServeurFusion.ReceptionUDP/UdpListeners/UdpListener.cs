@@ -21,22 +21,25 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
 
         public void Stop()
         {
+            StopListening();
             _udpListenerThread.Abort();
         }
 
         protected abstract void StartListening(object obj);
+
+        protected abstract void StopListening();
     }
 
 
     public class UdpThreadInfos<T>
     {
-        public DataTransferer<T> _dataTransferer { get; set; }
-        public int _port { get; set; }
+        public DataTransferer<T> DataTransferer { get; set; }
+        public int Port { get; set; }
 
         public UdpThreadInfos(DataTransferer<T> dataTransferer, int port)
         {
-            _dataTransferer = dataTransferer;
-            _port = port;
+            DataTransferer = dataTransferer;
+            Port = port;
         }
     }
 }

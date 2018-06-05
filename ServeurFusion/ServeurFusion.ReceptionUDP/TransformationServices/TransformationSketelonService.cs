@@ -22,7 +22,8 @@ namespace ServeurFusion.ReceptionUDP
             {
                 if (!ti._udpToMiddle.IsEmpty())
                 {
-                    ti._middleToWebRtc.AddData(ti._udpToMiddle.ConsumeData());
+                    var data = ti._udpToMiddle.ConsumeData();
+                    ti._middleToWebRtc.AddData(data);
                 }
             }
         }

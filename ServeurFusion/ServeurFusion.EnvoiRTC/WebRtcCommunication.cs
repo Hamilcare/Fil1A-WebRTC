@@ -88,7 +88,7 @@ namespace ServeurFusion.EnvoiRTC
         /// </summary>
         public void Connect()
         {
-            _signallingServer.Send("{\"type\":\"login\", \"name\":\"webrtcedric\"}");
+            _signallingServer.Send("{\"type\":\"login\", \"name\":\"vivien\"}");
         }
 
         /// <summary>
