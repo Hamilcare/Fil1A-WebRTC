@@ -30,7 +30,15 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
 
             while (true)
             {
-                var data = _udp.Receive(ref remoteEP);
+                byte[] data = null;
+                try
+                {
+                    data = _udp.Receive(ref remoteEP);
+                }
+                catch (Exception ex)
+                {
+
+                }
                 var cloud = new Cloud
                 {
                     Timestamp = BitConverter.ToInt64(data, 0),

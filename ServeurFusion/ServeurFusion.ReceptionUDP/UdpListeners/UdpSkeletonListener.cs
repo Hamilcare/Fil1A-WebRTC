@@ -27,7 +27,14 @@ namespace ServeurFusion.ReceptionUDP
             while (true)
             {
                 // Receiving frames from KinectStreamer
-                var data = _udp.Receive(ref remoteEP);
+                byte[] data = null;
+                try
+                {
+                    data = _udp.Receive(ref remoteEP);
+                } catch (Exception ex)
+                {
+
+                }
                 int count = 0;
                 // Processing Skeleton
                 Skeleton skeleton = new Skeleton()

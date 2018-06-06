@@ -26,7 +26,6 @@ namespace ServeurFusion.EnvoiRTC
 
         private BlockingCollection<Cloud> _cloudToWebRtc { get; set; }
 
-        // TODO: List of users for multi-clients implementation ?
         private string _connectedUser;
 
         private Dictionary<string, SpitfireRtc> _peers;
@@ -66,6 +65,10 @@ namespace ServeurFusion.EnvoiRTC
             Connect();
         }
 
+        /// <summary>
+        /// Setup new generic RTCPeerConnection
+        /// </summary>
+        /// <returns></returns>
         public SpitfireRtc HandleNewPeer()
         {
             SpitfireRtc rtcPeerConnection = new SpitfireRtc();
@@ -139,6 +142,7 @@ namespace ServeurFusion.EnvoiRTC
                         Console.WriteLine("WebSocket : Login error");
                     break;
 
+                // New user message
                 case "new user":
                     _connectedUser = messageJson.GetValue("name").ToString();
                     Console.WriteLine("WebSocket : new user : " + _connectedUser);
@@ -305,6 +309,8 @@ namespace ServeurFusion.EnvoiRTC
 
             _skeletonThread.Stop();
             _cloudThread.Stop();
+
+            _peers.Clear();
         }
     }
 }
