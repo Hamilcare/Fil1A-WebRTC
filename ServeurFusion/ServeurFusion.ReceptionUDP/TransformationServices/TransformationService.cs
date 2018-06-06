@@ -4,6 +4,10 @@ using System.Threading;
 
 namespace ServeurFusion.ReceptionUDP.TransformationServices
 {
+    /// <summary>
+    /// Generic class which actually do nothing, it's not used, it will be if we have to add some logic in the middle.
+    /// </summary>
+    /// <typeparam name="T">The generic type to pass from a queue to another</typeparam>
     public abstract class TransformationService<T>
     {
         private Thread _transformationServiceThread;
@@ -25,6 +29,10 @@ namespace ServeurFusion.ReceptionUDP.TransformationServices
         protected abstract void Launch(object obj);
     }
 
+    /// <summary>
+    /// Information to pass to the thread
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class MiddleThreadInfos<T>
     {
         public BlockingCollection<T> _udpToMiddle { get; set; }

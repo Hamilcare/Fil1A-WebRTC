@@ -9,8 +9,14 @@ using System.Net.Sockets;
 
 namespace ServeurFusion.ReceptionUDP.UdpListeners
 {
+    /// <summary>
+    /// Udp listener for receive the cloud point send by the streamer in udp
+    /// </summary>
     public class UdpCloudListener : UdpListener<Cloud>
     {
+        /// <summary>
+        /// The udp client
+        /// </summary>
         private UdpClient _udp;
 
         public UdpCloudListener(BlockingCollection<Cloud> dataTransferer, int port)
@@ -18,6 +24,10 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
             _udpThreadInfos = new UdpThreadInfos<Cloud>(dataTransferer, port);
         }
 
+        /// <summary>
+        /// THe method who start the listening and add the receive data to the queue
+        /// </summary>
+        /// <param name="threadInfos">The informations to pass to the thread</param>
         override protected void StartListening(object threadInfos)
         {
             UdpThreadInfos<Cloud> ti = (UdpThreadInfos<Cloud>)threadInfos;
@@ -81,6 +91,9 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
             }
         }
 
+        /// <summary>
+        /// Method who stop the listening;
+        /// </summary>
         override protected void StopListening()
         {
             Console.WriteLine("Stop listening on UdpCloudListener thread");

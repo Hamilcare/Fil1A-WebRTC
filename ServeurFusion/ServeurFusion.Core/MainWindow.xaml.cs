@@ -58,18 +58,19 @@ namespace ServeurFusion.Core
 
             _kinectSkeletonList = new List<UdpSkeletonListener>
             {
-                new UdpSkeletonListener(_skeletonUdpToMiddle, 9877),
-                new UdpSkeletonListener(_skeletonUdpToMiddle, 9887)
+                new UdpSkeletonListener(_skeletonMiddleToWebRtc, 9877),
+                new UdpSkeletonListener(_skeletonMiddleToWebRtc, 9887)
             };
 
             _kinectCloudList = new List<UdpCloudListener>
             {
-                new UdpCloudListener(_cloudUdpToMiddle, 9876),
-                new UdpCloudListener(_cloudUdpToMiddle, 9886)
+                new UdpCloudListener(_cloudMiddleToWebRtc, 9876),
+                new UdpCloudListener(_cloudMiddleToWebRtc, 9886)
             };
 
-            _skeletonTransformationService = new TransformationSkeletonService(_skeletonUdpToMiddle, _skeletonMiddleToWebRtc);
-            _cloudTransformationService = new TransformationCloudService(_cloudUdpToMiddle, _cloudMiddleToWebRtc);
+            //A réactiver si on fait des trucs dans le middle
+            //_skeletonTransformationService = new TransformationSkeletonService(_skeletonUdpToMiddle, _skeletonMiddleToWebRtc);
+            //_cloudTransformationService = new TransformationCloudService(_cloudUdpToMiddle, _cloudMiddleToWebRtc);
 
             _webRtcSender = new WebRtcCommunication(_skeletonMiddleToWebRtc, _cloudMiddleToWebRtc);
 

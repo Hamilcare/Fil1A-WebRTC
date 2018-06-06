@@ -8,14 +8,25 @@ using System.Net.Sockets;
 
 namespace ServeurFusion.ReceptionUDP
 {
+    /// <summary>
+    /// Udp listener for receive the skeleton send by the streamer in udp
+    /// </summary>
     public class UdpSkeletonListener : UdpListener<Skeleton>
     {
+        /// <summary>
+        /// The udp client
+        /// </summary>
         private UdpClient _udp;
+
         public UdpSkeletonListener(BlockingCollection<Skeleton> dataTransferer, int port)
         {
             _udpThreadInfos = new UdpThreadInfos<Skeleton>(dataTransferer, port);
         }
 
+        /// <summary>
+        /// THe method who start the listening and add the receive data to the queue
+        /// </summary>
+        /// <param name="threadInfos">The informations to pass to the thread</param>
         override protected void StartListening(object threadInfos)
         {
             UdpThreadInfos<Skeleton> ti = (UdpThreadInfos<Skeleton>)threadInfos;
@@ -62,6 +73,9 @@ namespace ServeurFusion.ReceptionUDP
             }
         }
 
+        /// <summary>
+        /// Method who stop the listening;
+        /// </summary>
         override protected void StopListening()
         {
             Console.WriteLine("Stop listening on UdpSkeletonListener thread");
