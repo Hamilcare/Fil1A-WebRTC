@@ -18,8 +18,16 @@ var sendMsgBtn = document.querySelector('#sendMsgBtn');
 
 var removeSkeletonBtn = document.querySelector('#removeSkeleton');
 
+var afficherCloud = document.querySelector('#afficherCloud');
+var isAfficherCloud = true;
+var isAfficherSkeleton = false;
+
+afficherCloud.addEventListener('click', function(event){
+isAfficherCloud = ! isAfficherCloud;
+});
+
 removeSkeletonBtn.addEventListener("click", function(event) {
-	removeSkeletonFromScene();
+	isAfficherSkeleton = !isAfficherSkeleton;
 });
 
 sendMsgBtn.addEventListener("click", function(event) {
@@ -176,11 +184,21 @@ function setupSkeletonChannel() {
     };
 
     channelSkeleton.onmessage = function(evt) {
+		if(isAfficherSkeleton){
+			//@TODO afficher skelton
+		}
         //console.log("Message received on skeletonChannel");
-				//console.log(evt.data);
-        handleReceivedSkeletonCoordinates(evt.data);
+		//		console.log(evt.data);
+        //handleReceivedSkeletonCoordinates(evt.data);
+        
+        //if(evt.data=="a")
+          //renderingUsingMergedMesh();
+        //if(evt.data=="b")
+          //renderUsingOneGeometry();
+		//if(evt.data=="c")
+			//renderUsingOneBufferGeometry();
         // lance l'animation du cube
-        //animate();
+        //animate();*/
     };
 }
 
@@ -192,8 +210,16 @@ function setupCloudChannel() {
     channelCloud.onmessage = function(evt) {
         //console.log("Message received on cloudChannel");
 				//console.log(evt.data);
-        handleReceivedCloudCoordinates(evt.data);
-        animate();
+        if(isAfficherCloud){
+			//console.log("cloud frame reçue");
+			//handleCloudUsingBufferGeometry(evt.data);
+			//handleCloudUsingBufferGeometrySynchronous(evt.data);
+			//generatePoint(evt.data);
+			//handleCloudUsingOneGeometry(evt.data);
+			handleCloudData(evt.data);
+			//synchronousCloud(evt.data);
+        }
+        //animate();
     };
 }
 
