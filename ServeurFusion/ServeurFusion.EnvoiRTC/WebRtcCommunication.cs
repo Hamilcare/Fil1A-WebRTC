@@ -145,9 +145,16 @@ namespace ServeurFusion.EnvoiRTC
                 // New user message
                 case "new user":
                     _connectedUser = messageJson.GetValue("name").ToString();
-                    Console.WriteLine("WebSocket : new user : " + _connectedUser);
+                    Console.WriteLine("New peer : " + _connectedUser);
                     _peers.Add(_connectedUser, HandleNewPeer());
                     _peers.Values.Last().CreateOffer();
+                    break;
+
+                // Message user leaving
+                case "leave":
+                    string name = messageJson.GetValue("name").ToString();
+                    _peers.Remove(name);
+                    Console.WriteLine("Peer disconnected : " + name);
                     break;
 
                 // Offer message
