@@ -96,7 +96,7 @@ namespace ServeurFusion.EnvoiRTC
             string message = e.Data;
 
             // Ignore Hello World message
-            if (message.Contains("Hello world"))
+            if (message.Contains("Hello world") || message.Contains("new user"))
                 return;
 
             // Parsing received message

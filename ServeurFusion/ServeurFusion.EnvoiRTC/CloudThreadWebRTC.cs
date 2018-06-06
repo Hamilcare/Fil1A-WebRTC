@@ -40,7 +40,6 @@ namespace ServeurFusion.EnvoiRTC
             while (true)
             {
                 Cloud cloud = cloudThreadInfos.CloudToWebRTC.Take();
-                /*
                 //On envoi les points par paquets de nbPointsParPaquet
                 int nbPointsParPaquet = 50;
                 int cpt1 = 0;
@@ -60,18 +59,6 @@ namespace ServeurFusion.EnvoiRTC
 
                     cloudThreadInfos.RTCPeerConnection.DataChannelSendText("cloudChannel", formattedMsg);
                 }
-                */
-                //Ancienne méthode pour envoyer tout en une trame (pb : trame découpée par SpitFire)
-                string formattedCloudMessage = String.Empty;
-                for(int i = 0; i < cloud.Points.Count; i++)
-                {
-                    if (i % 35 != 0)
-                        continue;
-                    var s = cloud.Points.ElementAt(i);
-                    formattedCloudMessage += $"{s.X};{s.Y};{s.Z};{s.R};{s.G};{s.B};".Replace(',', '.');
-                }
-                formattedCloudMessage = formattedCloudMessage.Remove(formattedCloudMessage.Length - 1, 1);
-                cloudThreadInfos.RTCPeerConnection.DataChannelSendText("cloudChannel", formattedCloudMessage);
             }
         }
 
