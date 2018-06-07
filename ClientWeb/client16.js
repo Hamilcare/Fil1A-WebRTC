@@ -22,6 +22,18 @@ var removeSkeletonBtn = document.querySelector('#removeSkeleton');
 var afficherCloud = document.querySelector('#afficherCloud');
 var isAfficherCloud = true;
 var isAfficherSkeleton = false;
+/*
+//Show framerate
+var stats = new Stats();
+stats.showPanel(1);// 0: fps, 1: ms, 2: mb, 3+: custom
+document.body.appendChild( stats.dom );
+*/
+/*function animate(){
+	stats.begin();
+	setupCloudChannel();
+	stats.end();
+	requestAnimationFrame(animate);
+}*/
 
 afficherCloud.addEventListener('click', function(event){
 isAfficherCloud = ! isAfficherCloud;
@@ -109,7 +121,8 @@ function start(isInitiator) {
                 setupSkeletonChannel();
             } else if (evt.channel.id == 3) {
                 channelCloud = evt.channel;
-                setupCloudChannel();
+                //requestAnimationFrame(animate);
+				setupCloudChannel();
             }
         };
     }

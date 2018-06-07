@@ -1,3 +1,5 @@
+
+
 function init(){
 
     renderer = new THREE.WebGLRenderer();
@@ -23,7 +25,7 @@ function init(){
 
 var currentTimestamp; //currentTimestamp
 var cloudDataBuffer = "";  //current data buffer
-var arrayOfDataReadyToRender = []; //array of data ready to be process by rendering method
+//var arrayOfDataReadyToRender = []; //array of data ready to be process by rendering method
 var isRenderingReady = true; //true if rendering method is ready to process a new set of data
 var timestampLength;
 
@@ -31,7 +33,7 @@ var timestampLength;
 function handleCloudData(data){
 	
 	console.log(data);
-	console.log(arrayOfDataReadyToRender.length);
+	//console.log(arrayOfDataReadyToRender.length);
 	if(!timestampLength){
 		timestampLength = data.indexOf(';');
 	}
@@ -49,15 +51,15 @@ function handleCloudData(data){
 		cloudDataBuffer += data.substring(timestampLength+2);
 	}
 	else{
-		//synchronousCloud(cloudDataBuffer);
-		arrayOfDataReadyToRender.push(cloudDataBuffer);
+		synchronousCloud(cloudDataBuffer);
+		//arrayOfDataReadyToRender.push(cloudDataBuffer);
 		cloudDataBuffer = data.substring(timestampLength+2);
 		currentTimestamp = trameTimestamp;
 	}
 	
-	if(isRenderingReady && arrayOfDataReadyToRender.length>0){
-		synchronousCloud(arrayOfDataReadyToRender.shift());
-	}
+	//if(isRenderingReady && arrayOfDataReadyToRender.length>0){
+	//	synchronousCloud(arrayOfDataReadyToRender.shift());
+	//}
 }
 
 function renderUsingOneBufferGeometry(){
