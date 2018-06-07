@@ -82,6 +82,7 @@ namespace ServeurFusion.EnvoiRTC
                         }
                     }
                 }
+                Console.WriteLine($"Frame send with {cloud.Points.Count} points. (Timestamp = {cloud.Timestamp})");
             }
         }
 
