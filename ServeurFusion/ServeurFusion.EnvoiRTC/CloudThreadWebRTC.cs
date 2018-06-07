@@ -41,7 +41,7 @@ namespace ServeurFusion.EnvoiRTC
             {
                 Cloud cloud = cloudThreadInfos.CloudToWebRTC.Take();
                 //On envoi les points par paquets de nbPointsParPaquet
-                int nbPointsParPaquet = 20;
+                int nbPointsParPaquet = 10;
                 int cpt1 = 0;
                 while(cpt1 + nbPointsParPaquet <= cloud.Points.Count)
                 {

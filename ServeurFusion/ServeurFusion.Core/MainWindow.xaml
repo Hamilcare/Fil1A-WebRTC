@@ -13,17 +13,20 @@
         </Grid.RowDefinitions>
         <GroupBox Header="Configuration UDP" Height="126" Margin="10,10,9.6,0" VerticalAlignment="Top" RenderTransformOrigin="0.47,-0.163" Grid.RowSpan="2">
             <Grid Margin="10,10,-2.4,-12.2">
-                <Button x:Name="BtnAddKinect" Content="Add kinect" HorizontalAlignment="Left" Margin="61,0,0,10.2" Width="75" Height="22" VerticalAlignment="Bottom" Click="BtnAddKinect_Click"/>
+                <Button x:Name="BtnAddKinect" Content="Add kinect" HorizontalAlignment="Left" Margin="101,0,0,17.2" Width="75" Height="22" VerticalAlignment="Bottom" Click="BtnAddKinect_Click"/>
                 <TextBox x:Name="TxtBoxSkeletonPort" HorizontalAlignment="Left" Height="23" Margin="101,5,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
                 <Label Content="Skeleton port :" HorizontalAlignment="Left" Margin="10,4,0,0" VerticalAlignment="Top" Width="102"/>
-                <Label Content="Cloud port :" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="102"/>
+                <Label Content="Cloud port :" HorizontalAlignment="Left" Margin="10,36,0,0" VerticalAlignment="Top" Width="102"/>
                 <TextBox x:Name="TxtBoxCloudPort" HorizontalAlignment="Left" Height="23" Margin="101,36,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-                <ListBox x:Name="ListBoxPorts" Margin="272,9,10,10.2"/>
-                <Label Content="List of kinects :" HorizontalAlignment="Left" Margin="369,-17,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.495,0.305"/>
+                <ListBox x:Name="ListBoxPorts" Margin="264,5,10,0" Height="84" VerticalAlignment="Top"/>
+                <Label Content="List of kinects :" HorizontalAlignment="Left" Margin="350,-17,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.495,0.305"/>
             </Grid>
         </GroupBox>
         <GroupBox Header="Configuration WebRTC" Height="100" Margin="10,73.2,9.6,0" VerticalAlignment="Top" RenderTransformOrigin="0.47,-0.163" Grid.Row="1">
-
+            <Grid HorizontalAlignment="Left" Height="79" Margin="10,0,-2.4,-1.4" VerticalAlignment="Top" Width="522">
+                <Label Content="Signaling server : " HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="TxtBoxSignalingServer" HorizontalAlignment="Left" Height="23" Margin="114,8,0,0" TextWrapping="Wrap" Text="ws://barnab2.tk:9090" VerticalAlignment="Top" Width="228"/>
+            </Grid>
         </GroupBox>
         <Button x:Name="BtnStart" Content="Start" HorizontalAlignment="Left" Margin="10,0,0,10.2" Width="75" Height="20" VerticalAlignment="Bottom" Click="BtnStart_Click" Grid.Row="1"/>
         <Button x:Name="BtnStop" Content="Stop" Margin="90,0,0,10.2" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="75" IsEnabled="False" Click="BtnStop_Click" Grid.Row="1"/>

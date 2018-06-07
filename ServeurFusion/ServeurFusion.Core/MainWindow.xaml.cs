@@ -33,6 +33,7 @@ namespace ServeurFusion.Core
         public MainWindow()
         {
             InitializeComponent();
+            this.ResizeMode = ResizeMode.NoResize;
             _kinectSkeletonList = new List<UdpSkeletonListener>();
             _kinectCloudList = new List<UdpCloudListener>();
             AddKinectListener(9877, 9876);
@@ -51,24 +52,12 @@ namespace ServeurFusion.Core
         private void BtnStart_Click(object sender, RoutedEventArgs e)
         {
             // Disable start button
-            ToggleControls(true);
-
-            //_kinectSkeletonList = new List<UdpSkeletonListener>
-            //{
-            //    new UdpSkeletonListener(_skeletonMiddleToWebRtc, 9877),
-            //    new UdpSkeletonListener(_skeletonMiddleToWebRtc, 9887)
-            //};
-
-            //_kinectCloudList = new List<UdpCloudListener>
-            //{
-            //    new UdpCloudListener(_cloudMiddleToWebRtc, 9876),
-            //    new UdpCloudListener(_cloudMiddleToWebRtc, 9886)
-            //};
+            ToggleControls(true);          
 
             //_skeletonTransformationService = new TransformationSkeletonService(_skeletonUdpToMiddle, _skeletonMiddleToWebRtc);
             //_cloudTransformationService = new TransformationCloudService(_cloudUdpToMiddle, _cloudMiddleToWebRtc);
 
-            _webRtcSender = new WebRtcCommunication(_skeletonMiddleToWebRtc, _cloudMiddleToWebRtc);
+            _webRtcSender = new WebRtcCommunication(_skeletonMiddleToWebRtc, _cloudMiddleToWebRtc, TxtBoxSignalingServer.Text);
 
             _kinectSkeletonList.ForEach(ksList => ksList.Listen());
             //_skeletonTransformationService.Start();
@@ -99,28 +88,33 @@ namespace ServeurFusion.Core
         {
             if (String.IsNullOrWhiteSpace(TxtBoxCloudPort.Text) || String.IsNullOrWhiteSpace(TxtBoxSkeletonPort.Text))
             {
-                MessageBox.Show("Ports can't be empty", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowErrorWindow("Ports can't be empty");
                 return;
             }
             int skeletonPort, cloudPort;
             if(!Int32.TryParse(TxtBoxSkeletonPort.Text, out skeletonPort))
             {
-                MessageBox.Show("Skeleton port must be integer", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowErrorWindow("Skeleton port must be integer");
                 return;
             }
             if (!Int32.TryParse(TxtBoxCloudPort.Text, out cloudPort))
             {
-                MessageBox.Show("Cloud port must be integer", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowErrorWindow("Cloud port must be integer");
                 return;
             }
             int minPort = 1025;
             int maxPort = 65535;
             if(skeletonPort < minPort || skeletonPort > maxPort || cloudPort < minPort || cloudPort > maxPort)
             {
-                MessageBox.Show($"Ports must be set between {minPort} and {maxPort}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowErrorWindow($"Ports must be set between {minPort} and {maxPort}");
                 return;
             }
             AddKinectListener(skeletonPort, cloudPort);
+        }
+
+        private void ShowErrorWindow(string errorMessage)
+        {
+            MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         private void AddKinectListener(int skeletonPort, int cloudPort)
@@ -141,6 +135,7 @@ namespace ServeurFusion.Core
             BtnAddKinect.IsEnabled = !serverRunning;
             TxtBoxCloudPort.IsEnabled = !serverRunning;
             TxtBoxSkeletonPort.IsEnabled = !serverRunning;
+            TxtBoxSignalingServer.IsEnabled = !serverRunning;
         }
 
 
