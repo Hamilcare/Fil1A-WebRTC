@@ -1,4 +1,5 @@
 var signalingChannel = new WebSocket('ws://barnab2.tk:9090');
+//var signalingChannel = new WebSocket('ws://localhost:9090');
 var configuration = {
     iceServers: [{
         urls: "stun:stun.1.google.com:19302"
