@@ -12,7 +12,7 @@ using ServeurFusion.ReceptionUDP.UdpListeners;
 namespace ServeurFusion.Core
 {
     /// <summary>
-    /// Logique d'interaction pour MainWindow.xaml
+    /// >Interraction logic MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {

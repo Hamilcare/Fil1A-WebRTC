@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 
 namespace ServeurFusion.ReceptionUDP.Datas
 {
     /// <summary>
-    /// Class who represent a complete skeleton
+    /// Class who represent a skeleton
     /// </summary>
     public class Skeleton
     {

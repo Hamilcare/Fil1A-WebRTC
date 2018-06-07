@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ServeurFusion.ReceptionUDP.Datas.Cloud
+﻿namespace ServeurFusion.ReceptionUDP.Datas.Cloud
 {
     /// <summary>
-    /// Class which represent a point from a cloud point
-    /// Contain its position and its color
+    /// Class who represents a point of a cloud point
     /// </summary>
     public class CloudPoint
     {

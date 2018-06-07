@@ -4,24 +4,24 @@ using System.Threading;
 namespace ServeurFusion.ReceptionUDP.UdpListeners
 {
     /// <summary>
-    /// Generic class which allow to build udp listener who are going to listen with a thread.
+    /// Generic class for UdpListener threads
     /// </summary>
-    /// <typeparam name="T">The object which will be created by the listener</typeparam>
+    /// <typeparam name="T">Object created by the listener</typeparam>
     public abstract class UdpListener<T>
     {
         /// <summary>
-        /// A thread use for listen un udp.
+        /// Listening thread
         /// </summary>
         private Thread _udpListenerThread;
 
         /// <summary>
-        /// Informations used in the method start by the thread. 
-        /// The thread object allow only one parameters, so we need to put all the infomations in this object.
+        /// Informations used in the method started by the thread
+        /// The thread object allows only one parameter : put all the infomations in this object
         /// </summary>
         protected UdpThreadInfos<T> _udpThreadInfos;
 
         /// <summary>
-        ///  Method who are going  to listen in udp.
+        ///  Start the listening thread
         /// </summary>
         public void Listen()
         {
@@ -30,7 +30,7 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
         }
 
         /// <summary>
-        /// Method used to stop the thread.
+        /// Stop the listening thread
         /// </summary>
         public void Stop()
         {
@@ -39,29 +39,30 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
         }
 
         /// <summary>
-        /// Method to redefined in childrens of the class, its the logic of the thread.
+        /// Method to override in children of this class, start listening on the thread
         /// </summary>
-        /// <param name="obj">The UdpThreadInfo, the method need to have an object in paramaters</param>
+        /// <param name="obj">UdpThreadInfo, thread params</param>
         protected abstract void StartListening(object obj);
 
         /// <summary>
-        /// Abstract method for stop the listening
+        /// Method to override in children of this class, stop listening on the thread
         /// </summary>
         protected abstract void StopListening();
     }
 
     /// <summary>
-    /// The class use to transfert data to the thread
+    /// Class use to set thread params
     /// </summary>
-    /// <typeparam name="T">the generic type used in the listener</typeparam>
+    /// <typeparam name="T">Generic type used in the listener</typeparam>
     public class UdpThreadInfos<T>
     {
         /// <summary>
-        /// The queue in which we add the datas.
+        /// BlockingCollection in which adding received data
         /// </summary>
         public BlockingCollection<T> DataTransferer { get; set; }
+
         /// <summary>
-        /// The port where to listen
+        /// Listening port
         /// </summary>
         public int Port { get; set; }
 

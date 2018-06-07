@@ -5,21 +5,24 @@ using System.Threading;
 namespace ServeurFusion.ReceptionUDP.TransformationServices
 {
     /// <summary>
-    /// Generic class which actually do nothing, it's not used, it will be if we have to add some logic in the middle.
+    /// Middleware class for future data processing
     /// </summary>
-    /// <typeparam name="T">The generic type to pass from a queue to another</typeparam>
+    /// <typeparam name="T">Generic type of transfered data</typeparam>
     public abstract class TransformationService<T>
     {
         private Thread _transformationServiceThread;
         protected MiddleThreadInfos<T> _middleThreadInfos{ get; set; }
 
-
+        /// <summary>
+        /// Starting thread
+        /// </summary>
         public void Start()
         {
             _transformationServiceThread = new Thread(new ParameterizedThreadStart(Launch));
             _transformationServiceThread.Start(_middleThreadInfos);
         }
 
+        // Stopping thread
         public void Stop()
         {
             Console.WriteLine("TransformationSkeleton thread stopped");
@@ -30,9 +33,9 @@ namespace ServeurFusion.ReceptionUDP.TransformationServices
     }
 
     /// <summary>
-    /// Information to pass to the thread
+    /// Class use to set thread params
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">Generic type used in the listener</typeparam>
     public class MiddleThreadInfos<T>
     {
         public BlockingCollection<T> _udpToMiddle { get; set; }

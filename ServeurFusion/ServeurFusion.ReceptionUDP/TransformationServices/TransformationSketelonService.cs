@@ -2,12 +2,11 @@
 using ServeurFusion.ReceptionUDP.TransformationServices;
 using System;
 using System.Collections.Concurrent;
-using System.Threading;
 
 namespace ServeurFusion.ReceptionUDP
 {
     /// <summary>
-    /// Class who transfert the cloud point from a queue to another
+    /// Class who transfert the skeleton between two BlockingCollection
     /// </summary>
     public class TransformationSkeletonService : TransformationService<Skeleton>
     {
@@ -17,9 +16,9 @@ namespace ServeurFusion.ReceptionUDP
         }
 
         /// <summary>
-        /// Transport data from a queue to another
+        /// Transport data between two BlockingCollection
         /// </summary>
-        /// <param name="threadInfos">the object who contains the data to transfert to one queue to another </param>
+        /// <param name="threadInfos">Object who contains the data to be tranfered </param>
         override protected void Launch(object threadInfos)
         {
             MiddleThreadInfos<Skeleton> ti = (MiddleThreadInfos<Skeleton>)threadInfos;

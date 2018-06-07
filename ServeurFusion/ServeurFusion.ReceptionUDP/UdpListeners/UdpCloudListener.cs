@@ -10,12 +10,12 @@ using System.Net.Sockets;
 namespace ServeurFusion.ReceptionUDP.UdpListeners
 {
     /// <summary>
-    /// Udp listener for receive the cloud point send by the streamer in udp
+    /// UdpListener of the cloud point sent by the KinectStreamer
     /// </summary>
     public class UdpCloudListener : UdpListener<Cloud>
     {
         /// <summary>
-        /// The udp client
+        /// UdpClient
         /// </summary>
         private UdpClient _udp;
 
@@ -25,9 +25,9 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
         }
 
         /// <summary>
-        /// THe method who start the listening and add the receive data to the queue
+        /// Start listening on specified port and adding data to the BlockingCollection
         /// </summary>
-        /// <param name="threadInfos">The informations to pass to the thread</param>
+        /// <param name="threadInfos">Thread informations - connection params</param>
         override protected void StartListening(object threadInfos)
         {
             UdpThreadInfos<Cloud> ti = (UdpThreadInfos<Cloud>)threadInfos;
@@ -93,14 +93,14 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
                     aggregateCloud = cloud;
                 }
 
-                // If same frame : aggregate
+                // If same frame, aggregate
                 else
                     aggregateCloud.Points.AddRange(cloud.Points);
             }
         }
 
         /// <summary>
-        /// Method who stop the listening;
+        /// Stop listening
         /// </summary>
         override protected void StopListening()
         {

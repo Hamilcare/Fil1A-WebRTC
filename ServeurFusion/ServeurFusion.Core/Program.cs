@@ -51,9 +51,8 @@ namespace ServeurFusion.Core
         [STAThread]    
         static void Main(string[] args)
         {
-            //Launch GUI
-            InitializeWindows(); // opens the WPF window and waits here
+            // Launch GUI
+            InitializeWindows(); // Opens the WPF window and waits here
         }
     }
-
 }
