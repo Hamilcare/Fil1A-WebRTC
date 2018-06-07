@@ -95,9 +95,22 @@ function renderUsingOneBufferGeometry(){
 	console.log("method took " + (endMethod - startMethod)+" ms");
 }
 
-function parseColorFromData(){
-	//@TODO
-	return true;
+function parseColorFromData(data){
+	var arrayOfCoordinates = data.split(";");
+	while((arrayOfCoordinates.length)%6 !=0){
+		arrayOfCoordinates.push("0");
+	}
+	var array = new Float32Array(arrayOfCoordinates.length/2);
+	var index = 0;
+	for(let i=0; i< arrayOfCoordinates.length-6; i=i+6){
+		array[index] = parseFloat(arrayOfCoordinates[i+3])/255;//R
+		index++;
+		array[index] = parseFloat(arrayOfCoordinates[i+4])/255;//G
+		index++;
+		array[index] = parseFloat(arrayOfCoordinates[i+5])/255;//B
+		index++;
+	}
+	return array;
 }
 
 function parseCoordinatesFromData(data){
@@ -143,7 +156,8 @@ function synchronousCloud(data){
 		size:0.05,
 		transparent: true,
 		opacity: 0.9,
-		color: 0xff0000});
+		color: 'white',
+		vertexColors: THREE.VertexColors});
 	let startMethod, endMethod, parsedData;
 	startMethod = performance.now();
 	geometry = new THREE.BufferGeometry();//Globale pour le moment pour le debug
@@ -162,11 +176,12 @@ function synchronousCloud(data){
 	})	
 	//On ajoute les points et les couleurs à la geometry 
 	.then(function(parsedColors){
-		//console.log(parsedData);
-		//console.log(parsedColors);
-		geometry.addAttribute('position', new THREE.BufferAttribute(parsedData, 3));//debug
 		
-		//@TODO PTDR ON AJOUTE LES COULEURS
+		console.log("Colors:");
+		console.log(parsedColors);
+		geometry.addAttribute('position', new THREE.BufferAttribute(parsedData, 3));//debug
+		geometry.addAttribute('color', new THREE.BufferAttribute(parsedColors, 3));//debug
+		
 		cloudPoints = new THREE.Points(geometry,material);
 		//cloudPoints = new THREE.Mesh(geometry);
 		return cloudPoints;
