@@ -33,6 +33,9 @@ namespace ServeurFusion.Core
         public MainWindow()
         {
             InitializeComponent();
+            _kinectSkeletonList = new List<UdpSkeletonListener>();
+            _kinectCloudList = new List<UdpCloudListener>();
+            AddKinectListener(9877, 9876);
         }
 
         private void BtnShowConsole_Click(object sender, RoutedEventArgs e)
@@ -45,28 +48,22 @@ namespace ServeurFusion.Core
             Program.HideConsole();
         }
 
-        private void BtnCustomDebug_Click(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("hello world !");
-        }
-
         private void BtnStart_Click(object sender, RoutedEventArgs e)
         {
             // Disable start button
-            BtnStart.IsEnabled = false;
-            BtnStop.IsEnabled = true;
+            ToggleControls(true);
 
-            _kinectSkeletonList = new List<UdpSkeletonListener>
-            {
-                new UdpSkeletonListener(_skeletonMiddleToWebRtc, 9877),
-                new UdpSkeletonListener(_skeletonMiddleToWebRtc, 9887)
-            };
+            //_kinectSkeletonList = new List<UdpSkeletonListener>
+            //{
+            //    new UdpSkeletonListener(_skeletonMiddleToWebRtc, 9877),
+            //    new UdpSkeletonListener(_skeletonMiddleToWebRtc, 9887)
+            //};
 
-            _kinectCloudList = new List<UdpCloudListener>
-            {
-                new UdpCloudListener(_cloudMiddleToWebRtc, 9876),
-                new UdpCloudListener(_cloudMiddleToWebRtc, 9886)
-            };
+            //_kinectCloudList = new List<UdpCloudListener>
+            //{
+            //    new UdpCloudListener(_cloudMiddleToWebRtc, 9876),
+            //    new UdpCloudListener(_cloudMiddleToWebRtc, 9886)
+            //};
 
             //_skeletonTransformationService = new TransformationSkeletonService(_skeletonUdpToMiddle, _skeletonMiddleToWebRtc);
             //_cloudTransformationService = new TransformationCloudService(_cloudUdpToMiddle, _cloudMiddleToWebRtc);
@@ -82,16 +79,70 @@ namespace ServeurFusion.Core
 
         private void BtnStop_Click(object sender, RoutedEventArgs e)
         {
-            BtnStart.IsEnabled = true;
-            BtnStop.IsEnabled = false;
+            ToggleControls(false);
+            ListBoxPorts.Items.Clear();
 
             _webRtcSender.Close();
 
             _kinectSkeletonList.ForEach(ksList => ksList.Stop());
+            _kinectSkeletonList.Clear();
             //_skeletonTransformationService.Stop();
 
             _kinectCloudList.ForEach(kcList => kcList.Stop());
+            _kinectCloudList.Clear();
             //_cloudTransformationService.Stop();
+            AddKinectListener(9877, 9876);
+
         }
+
+        private void BtnAddKinect_Click(object sender, RoutedEventArgs e)
+        {
+            if (String.IsNullOrWhiteSpace(TxtBoxCloudPort.Text) || String.IsNullOrWhiteSpace(TxtBoxSkeletonPort.Text))
+            {
+                MessageBox.Show("Ports can't be empty", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            int skeletonPort, cloudPort;
+            if(!Int32.TryParse(TxtBoxSkeletonPort.Text, out skeletonPort))
+            {
+                MessageBox.Show("Skeleton port must be integer", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            if (!Int32.TryParse(TxtBoxCloudPort.Text, out cloudPort))
+            {
+                MessageBox.Show("Cloud port must be integer", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            int minPort = 1025;
+            int maxPort = 65535;
+            if(skeletonPort < minPort || skeletonPort > maxPort || cloudPort < minPort || cloudPort > maxPort)
+            {
+                MessageBox.Show($"Ports must be set between {minPort} and {maxPort}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            AddKinectListener(skeletonPort, cloudPort);
+        }
+
+        private void AddKinectListener(int skeletonPort, int cloudPort)
+        {
+            _kinectCloudList.Add(new UdpCloudListener(_cloudMiddleToWebRtc, cloudPort));
+            _kinectSkeletonList.Add(new UdpSkeletonListener(_skeletonMiddleToWebRtc, skeletonPort));
+            ListBoxPorts.Items.Add($"Kinect : (skeleton = {skeletonPort} ; cloud = {cloudPort})");
+        }
+
+        /// <summary>
+        /// Activate/Desactivate the controls in GUI
+        /// </summary>
+        /// <param name="serverRunning">True if the server is launching (deactivate the controls), false if the server is stoping</param>
+        private void ToggleControls(bool serverRunning)
+        {
+            BtnStart.IsEnabled = !serverRunning;
+            BtnStop.IsEnabled = serverRunning;
+            BtnAddKinect.IsEnabled = !serverRunning;
+            TxtBoxCloudPort.IsEnabled = !serverRunning;
+            TxtBoxSkeletonPort.IsEnabled = !serverRunning;
+        }
+
+
     }
 }

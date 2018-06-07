@@ -5,15 +5,30 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ServeurFusion.Core"
         mc:Ignorable="d"
-        Title="Theia - serveur de fusion" Height="295.396" Width="568.096">
+        Title="Theia - serveur de fusion" Height="376.796" Width="568.096">
     <Grid>
-        <GroupBox Header="Configuration UDP" Height="100" Margin="10,10,10,0" VerticalAlignment="Top" RenderTransformOrigin="0.47,-0.163"/>
-        <GroupBox Header="Configuration WebRTC" Height="100" Margin="10,115,10,0" VerticalAlignment="Top" RenderTransformOrigin="0.47,-0.163"/>
-        <Button x:Name="BtnStart" Content="Start" HorizontalAlignment="Left" Margin="10,0,0,10" Width="75" Height="20" VerticalAlignment="Bottom" Click="BtnStart_Click"/>
-        <Button x:Name="BtnStop" Content="Stop" Margin="90,0,0,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="75" IsEnabled="False" Click="BtnStop_Click"/>
-        <Button x:Name="BtnHideConsole" Content="Hide console" Margin="0,0,10,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Click="BtnHideConsole_Click"/>
-        <Button x:Name="BtnShowConsole" Content="Show console" Margin="0,0,90,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="84" Click="BtnShowConsole_Click" />
-        <Button x:Name="BtnCustomDebug" Content="Test_debug&#xD;&#xA;" HorizontalAlignment="Left" Margin="240,238,0,0" VerticalAlignment="Top" Width="75" Click="BtnCustomDebug_Click" Height="18" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="109*"/>
+            <RowDefinition Height="238*"/>
+        </Grid.RowDefinitions>
+        <GroupBox Header="Configuration UDP" Height="126" Margin="10,10,9.6,0" VerticalAlignment="Top" RenderTransformOrigin="0.47,-0.163" Grid.RowSpan="2">
+            <Grid Margin="10,10,-2.4,-12.2">
+                <Button x:Name="BtnAddKinect" Content="Add kinect" HorizontalAlignment="Left" Margin="61,0,0,10.2" Width="75" Height="22" VerticalAlignment="Bottom" Click="BtnAddKinect_Click"/>
+                <TextBox x:Name="TxtBoxSkeletonPort" HorizontalAlignment="Left" Height="23" Margin="101,5,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <Label Content="Skeleton port :" HorizontalAlignment="Left" Margin="10,4,0,0" VerticalAlignment="Top" Width="102"/>
+                <Label Content="Cloud port :" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="102"/>
+                <TextBox x:Name="TxtBoxCloudPort" HorizontalAlignment="Left" Height="23" Margin="101,36,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                <ListBox x:Name="ListBoxPorts" Margin="272,9,10,10.2"/>
+                <Label Content="List of kinects :" HorizontalAlignment="Left" Margin="369,-17,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.495,0.305"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Configuration WebRTC" Height="100" Margin="10,73.2,9.6,0" VerticalAlignment="Top" RenderTransformOrigin="0.47,-0.163" Grid.Row="1">
+
+        </GroupBox>
+        <Button x:Name="BtnStart" Content="Start" HorizontalAlignment="Left" Margin="10,0,0,10.2" Width="75" Height="20" VerticalAlignment="Bottom" Click="BtnStart_Click" Grid.Row="1"/>
+        <Button x:Name="BtnStop" Content="Stop" Margin="90,0,0,10.2" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="75" IsEnabled="False" Click="BtnStop_Click" Grid.Row="1"/>
+        <Button x:Name="BtnHideConsole" Content="Hide console" Margin="0,0,9.6,10.2" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Click="BtnHideConsole_Click" Grid.Row="1"/>
+        <Button x:Name="BtnShowConsole" Content="Show console" Margin="0,0,89.6,10.2" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="84" Click="BtnShowConsole_Click" Grid.Row="1" />
     </Grid>
 </Window>
 
