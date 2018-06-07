@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ServeurFusion.Core"
         mc:Ignorable="d"
-        Title="Theia - serveur de fusion" Height="376.796" Width="568.096">
+        Title="Theia - serveur de fusion" Height="329.596" Width="568.096">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="109*"/>
@@ -22,16 +22,16 @@
                 <Label Content="List of kinects :" HorizontalAlignment="Left" Margin="350,-17,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.495,0.305"/>
             </Grid>
         </GroupBox>
-        <GroupBox Header="Configuration WebRTC" Height="100" Margin="10,73.2,9.6,0" VerticalAlignment="Top" RenderTransformOrigin="0.47,-0.163" Grid.Row="1">
+        <GroupBox Header="Configuration WebRTC" Height="100" Margin="10,49.6,9.6,0" VerticalAlignment="Top" RenderTransformOrigin="0.47,-0.163" Grid.Row="1">
             <Grid HorizontalAlignment="Left" Height="79" Margin="10,0,-2.4,-1.4" VerticalAlignment="Top" Width="522">
                 <Label Content="Signaling server : " HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="TxtBoxSignalingServer" HorizontalAlignment="Left" Height="23" Margin="114,8,0,0" TextWrapping="Wrap" Text="ws://barnab2.tk:9090" VerticalAlignment="Top" Width="228"/>
             </Grid>
         </GroupBox>
-        <Button x:Name="BtnStart" Content="Start" HorizontalAlignment="Left" Margin="10,0,0,10.2" Width="75" Height="20" VerticalAlignment="Bottom" Click="BtnStart_Click" Grid.Row="1"/>
-        <Button x:Name="BtnStop" Content="Stop" Margin="90,0,0,10.2" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="75" IsEnabled="False" Click="BtnStop_Click" Grid.Row="1"/>
-        <Button x:Name="BtnHideConsole" Content="Hide console" Margin="0,0,9.6,10.2" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Click="BtnHideConsole_Click" Grid.Row="1"/>
-        <Button x:Name="BtnShowConsole" Content="Show console" Margin="0,0,89.6,10.2" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="84" Click="BtnShowConsole_Click" Grid.Row="1" />
+        <Button x:Name="BtnStart" Content="Start" HorizontalAlignment="Left" Margin="13,0,0,10" Width="75" Height="20" VerticalAlignment="Bottom" Click="BtnStart_Click" Grid.Row="1"/>
+        <Button x:Name="BtnStop" Content="Stop" Margin="93,0,0,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="75" IsEnabled="False" Click="BtnStop_Click" Grid.Row="1"/>
+        <Button x:Name="BtnHideConsole" Content="Hide console" Margin="0,0,11.6,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Click="BtnHideConsole_Click" Grid.Row="1"/>
+        <Button x:Name="BtnShowConsole" Content="Show console" Margin="0,0,91.6,10" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="84" Click="BtnShowConsole_Click" Grid.Row="1" />
     </Grid>
 </Window>
 
