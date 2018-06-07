@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 namespace ServeurFusion.ReceptionUDP.Datas.Cloud
 {
     /// <summary>
-    /// Représente un point du nuage de points
+    /// Class which represent a point from a cloud point
+    /// Contain its position and its color
     /// </summary>
     public class CloudPoint
     {

@@ -6,6 +6,9 @@ using System.Text;
 
 namespace ServeurFusion.ReceptionUDP.Datas
 {
+    /// <summary>
+    /// Class who represent a complete skeleton
+    /// </summary>
     public class Skeleton
     {
         // Timestamp - 8 bytes
@@ -13,6 +16,9 @@ namespace ServeurFusion.ReceptionUDP.Datas
         // Tag - 1 byte
         public byte Tag { get; set; }
 
+        /// <summary>
+        /// Point list of the skeleton
+        /// </summary>
         public List<SkeletonPoint> SkeletonPoints { get; set; }
     }
 }
