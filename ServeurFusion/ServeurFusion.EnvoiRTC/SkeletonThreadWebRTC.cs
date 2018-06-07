@@ -44,7 +44,15 @@ namespace ServeurFusion.EnvoiRTC
                 formattedSkeletonMessage = formattedSkeletonMessage.Remove(formattedSkeletonMessage.Length - 1, 1);
                 foreach (KeyValuePair<string, SpitfireRtc> peer in skeletonThreadInfos.RTCPeerConnection)
                 {
-                    peer.Value.DataChannelSendText("skeletonChannel", formattedSkeletonMessage);
+                    // Handle peer disconnected while sending data
+                    try
+                    {
+                        peer.Value.DataChannelSendText("skeletonChannel", formattedSkeletonMessage);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Error, sending data to a disconnected peer : " + ex.Message);
+                    }
                 }
             }
         }

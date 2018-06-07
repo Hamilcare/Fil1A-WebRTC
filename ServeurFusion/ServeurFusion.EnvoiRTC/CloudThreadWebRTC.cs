@@ -50,7 +50,16 @@ namespace ServeurFusion.EnvoiRTC
 
                     foreach (KeyValuePair<string, SpitfireRtc> peer in cloudThreadInfos.RTCPeerConnection)
                     {
-                        peer.Value.DataChannelSendText("cloudChannel", formattedMsg);
+                        // Handle peer disconnected while sending data
+                        try
+                        {
+                            peer.Value.DataChannelSendText("cloudChannel", formattedMsg);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Error, sending data to a disconnected peer : " + ex.Message);
+                        }
+                        
                     }
                     cpt1 += nbPointsParPaquet;
                 }
@@ -62,7 +71,15 @@ namespace ServeurFusion.EnvoiRTC
 
                     foreach (KeyValuePair<string, SpitfireRtc> peer in cloudThreadInfos.RTCPeerConnection)
                     {
-                        peer.Value.DataChannelSendText("cloudChannel", formattedMsg);
+                        // Handle peer disconnected while sending data
+                        try
+                        {
+                            peer.Value.DataChannelSendText("cloudChannel", formattedMsg);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Error, sending data to a disconnected peer : " + ex.Message);
+                        }
                     }
                 }
             }
