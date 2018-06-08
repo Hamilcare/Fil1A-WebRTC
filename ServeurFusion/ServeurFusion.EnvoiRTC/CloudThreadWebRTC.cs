@@ -1,8 +1,11 @@
-﻿using ServeurFusion.ReceptionUDP.Datas.PointCloud;
+﻿using ServeurFusion.ReceptionUDP.Datas.Cloud;
+using ServeurFusion.ReceptionUDP.Datas.PointCloud;
 using Spitfire;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 
 namespace ServeurFusion.EnvoiRTC
@@ -10,9 +13,9 @@ namespace ServeurFusion.EnvoiRTC
     public class CloudThreadInfos
     {
         public BlockingCollection<Cloud> CloudToWebRTC { get; set; }
-        public SpitfireRtc RTCPeerConnection { get; set; }
+        public Dictionary<string, SpitfireRtc> RTCPeerConnection { get; set; }
 
-        public CloudThreadInfos(BlockingCollection<Cloud> cloudToWebRTC, SpitfireRtc rtcPeerConnection)
+        public CloudThreadInfos(BlockingCollection<Cloud> cloudToWebRTC, Dictionary<string, SpitfireRtc> rtcPeerConnection)
         {
             CloudToWebRTC = cloudToWebRTC;
             RTCPeerConnection = rtcPeerConnection;
@@ -23,7 +26,7 @@ namespace ServeurFusion.EnvoiRTC
         private Thread _cloudThread;
         private CloudThreadInfos _cloudThreadInfos;
 
-        public CloudThreadWebRTC(BlockingCollection<Cloud> cloudToWebRTC, SpitfireRtc rtcPeerConnection)
+        public CloudThreadWebRTC(BlockingCollection<Cloud> cloudToWebRTC, Dictionary<string, SpitfireRtc> rtcPeerConnection)
         {
             _cloudThreadInfos = new CloudThreadInfos(cloudToWebRTC, rtcPeerConnection);
             _cloudThread = new Thread(new ParameterizedThreadStart(StartCloudThread));
@@ -37,18 +40,61 @@ namespace ServeurFusion.EnvoiRTC
             while (true)
             {
                 Cloud cloud = cloudThreadInfos.CloudToWebRTC.Take();
-
-                string formattedCloudMessage = String.Empty;
-                for(int i = 0; i < cloud.Points.Count; i++)
+                //On envoi les points par paquets de nbPointsParPaquet
+                int nbPointsParPaquet = 20;
+                int cpt1 = 0;
+                while(cpt1 + nbPointsParPaquet <= cloud.Points.Count)
                 {
-                    if (i % 35 != 0)
-                        continue;
-                    var s = cloud.Points.ElementAt(i);
-                    formattedCloudMessage += $"{s.X};{s.Y};{s.Z};{s.R};{s.G};{s.B};".Replace(',', '.');
+                    var pointsToSend = cloud.Points.GetRange(cpt1, nbPointsParPaquet);
+                    string formattedMsg = FormateMessage(cloud.Timestamp, pointsToSend);
+
+                    foreach (KeyValuePair<string, SpitfireRtc> peer in cloudThreadInfos.RTCPeerConnection)
+                    {
+                        // Handle peer disconnected while sending data
+                        try
+                        {
+                            peer.Value.DataChannelSendText("cloudChannel", formattedMsg);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Error, sending data to a disconnected peer : " + ex.Message);
+                        }
+                        
+                    }
+                    cpt1 += nbPointsParPaquet;
                 }
-                formattedCloudMessage = formattedCloudMessage.Remove(formattedCloudMessage.Length - 1, 1);
-                cloudThreadInfos.RTCPeerConnection.DataChannelSendText("cloudChannel", formattedCloudMessage);
+                //On envoi le reste (s'il y en a)
+                if(cpt1 < cloud.Points.Count)
+                {
+                    var pointsToSend = cloud.Points.GetRange(cpt1, cloud.Points.Count - cpt1);
+                    string formattedMsg = FormateMessage(cloud.Timestamp, pointsToSend);
+
+                    foreach (KeyValuePair<string, SpitfireRtc> peer in cloudThreadInfos.RTCPeerConnection)
+                    {
+                        // Handle peer disconnected while sending data
+                        try
+                        {
+                            peer.Value.DataChannelSendText("cloudChannel", formattedMsg);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Error, sending data to a disconnected peer : " + ex.Message);
+                        }
+                    }
+                }
             }
+        }
+
+        private string FormateMessage(long timestamp, IList<CloudPoint> points)
+        {
+            StringBuilder formattedMsg = new StringBuilder();
+            formattedMsg.Append(timestamp);
+            foreach(var point in points)
+            {
+                formattedMsg.Append($";{point.X};{point.Y};{point.Z};{point.R};{point.G};{point.B}".Replace(',', '.'));
+            }
+
+            return formattedMsg.ToString();
         }
 
         public void Start()
@@ -59,7 +105,7 @@ namespace ServeurFusion.EnvoiRTC
         public void Stop()
         {
             _cloudThread.Abort();
-            Console.WriteLine("Thread Cloud sender stopped");
+            Console.WriteLine("Thread Cloud sender stopped"); 
         }
     }
 }

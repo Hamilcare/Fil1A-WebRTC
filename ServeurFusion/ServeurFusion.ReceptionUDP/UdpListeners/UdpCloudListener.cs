@@ -9,8 +9,14 @@ using System.Net.Sockets;
 
 namespace ServeurFusion.ReceptionUDP.UdpListeners
 {
+    /// <summary>
+    /// UdpListener of the cloud point sent by the KinectStreamer
+    /// </summary>
     public class UdpCloudListener : UdpListener<Cloud>
     {
+        /// <summary>
+        /// UdpClient
+        /// </summary>
         private UdpClient _udp;
 
         public UdpCloudListener(BlockingCollection<Cloud> dataTransferer, int port)
@@ -18,6 +24,10 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
             _udpThreadInfos = new UdpThreadInfos<Cloud>(dataTransferer, port);
         }
 
+        /// <summary>
+        /// Start listening on specified port and adding data to the BlockingCollection
+        /// </summary>
+        /// <param name="threadInfos">Thread informations - connection params</param>
         override protected void StartListening(object threadInfos)
         {
             UdpThreadInfos<Cloud> ti = (UdpThreadInfos<Cloud>)threadInfos;
@@ -30,7 +40,15 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
 
             while (true)
             {
-                var data = _udp.Receive(ref remoteEP);
+                byte[] data = null;
+                try
+                {
+                    data = _udp.Receive(ref remoteEP);
+                }
+                catch (Exception ex)
+                {
+
+                }
                 var cloud = new Cloud
                 {
                     Timestamp = BitConverter.ToInt64(data, 0),
@@ -75,12 +93,15 @@ namespace ServeurFusion.ReceptionUDP.UdpListeners
                     aggregateCloud = cloud;
                 }
 
-                // If same frame : aggregate
+                // If same frame, aggregate
                 else
                     aggregateCloud.Points.AddRange(cloud.Points);
             }
         }
 
+        /// <summary>
+        /// Stop listening
+        /// </summary>
         override protected void StopListening()
         {
             Console.WriteLine("Stop listening on UdpCloudListener thread");

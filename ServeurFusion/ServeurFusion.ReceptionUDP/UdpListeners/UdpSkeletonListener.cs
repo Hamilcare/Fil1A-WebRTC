@@ -8,14 +8,25 @@ using System.Net.Sockets;
 
 namespace ServeurFusion.ReceptionUDP
 {
+    /// <summary>
+    /// UdpListener of the skeleton sent by the KinectStreamer
+    /// </summary>
     public class UdpSkeletonListener : UdpListener<Skeleton>
     {
+        /// <summary>
+        /// UdpClient
+        /// </summary>
         private UdpClient _udp;
+
         public UdpSkeletonListener(BlockingCollection<Skeleton> dataTransferer, int port)
         {
             _udpThreadInfos = new UdpThreadInfos<Skeleton>(dataTransferer, port);
         }
 
+        /// <summary>
+        /// Start listening on specified port and adding data to the BlockingCollection
+        /// </summary>
+        /// <param name="threadInfos">Thread informations - connection params</param>
         override protected void StartListening(object threadInfos)
         {
             UdpThreadInfos<Skeleton> ti = (UdpThreadInfos<Skeleton>)threadInfos;
@@ -27,7 +38,14 @@ namespace ServeurFusion.ReceptionUDP
             while (true)
             {
                 // Receiving frames from KinectStreamer
-                var data = _udp.Receive(ref remoteEP);
+                byte[] data = null;
+                try
+                {
+                    data = _udp.Receive(ref remoteEP);
+                } catch (Exception ex)
+                {
+
+                }
                 int count = 0;
                 // Processing Skeleton
                 Skeleton skeleton = new Skeleton()
@@ -62,6 +80,9 @@ namespace ServeurFusion.ReceptionUDP
             }
         }
 
+        /// <summary>
+        /// Stop listening
+        /// </summary>
         override protected void StopListening()
         {
             Console.WriteLine("Stop listening on UdpSkeletonListener thread");

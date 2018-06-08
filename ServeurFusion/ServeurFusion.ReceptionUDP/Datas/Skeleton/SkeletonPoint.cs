@@ -1,5 +1,8 @@
 ﻿namespace ServeurFusion.ReceptionUDP.Datas
 {
+    /// <summary>
+    /// Class who represents a point of a skeleton
+    /// </summary>
     public class SkeletonPoint
     {
         // X point - 4 bytes
