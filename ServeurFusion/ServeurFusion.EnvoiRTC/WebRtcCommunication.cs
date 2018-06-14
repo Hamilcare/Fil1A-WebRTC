@@ -30,7 +30,7 @@ namespace ServeurFusion.EnvoiRTC
 
         private Dictionary<string, SpitfireRtc> _peers;
 
-        public WebRtcCommunication(BlockingCollection<Skeleton> skeletonToWebRtc, BlockingCollection<Cloud> cloudToWebRtc)
+        public WebRtcCommunication(BlockingCollection<Skeleton> skeletonToWebRtc, BlockingCollection<Cloud> cloudToWebRtc, string signalingServerAdress)
         {
             _peers = new Dictionary<string, SpitfireRtc>();
 
@@ -44,7 +44,7 @@ namespace ServeurFusion.EnvoiRTC
             _cloudThread.Start();
 
             // Setup signaling server
-            _signallingServer = new WebSocket("ws://barnab2.tk:9090");
+            _signallingServer = new WebSocket(signalingServerAdress);
             _signallingServer.OnMessage += WebSocketOnMessage;
 
             _signallingServer.OnOpen += (sender, e) =>

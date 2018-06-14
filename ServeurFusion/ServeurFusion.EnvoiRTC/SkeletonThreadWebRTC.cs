@@ -42,17 +42,18 @@ namespace ServeurFusion.EnvoiRTC
                 string formattedSkeletonMessage = "";
                 skeleton.SkeletonPoints.ForEach(s => formattedSkeletonMessage += $"{s.X};{s.Y};{s.Z};{s.R};{s.G};{s.B};".Replace(',', '.'));
                 formattedSkeletonMessage = formattedSkeletonMessage.Remove(formattedSkeletonMessage.Length - 1, 1);
-                foreach (KeyValuePair<string, SpitfireRtc> peer in skeletonThreadInfos.RTCPeerConnection)
+
+                // Handle peer disconnected while sending data
+                try
                 {
-                    // Handle peer disconnected while sending data
-                    try
+                    foreach (KeyValuePair<string, SpitfireRtc> peer in skeletonThreadInfos.RTCPeerConnection)
                     {
                         peer.Value.DataChannelSendText("skeletonChannel", formattedSkeletonMessage);
                     }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Error, sending data to a disconnected peer : " + ex.Message);
-                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error, sending data to a disconnected peer : " + ex.Message);
                 }
             }
         }
