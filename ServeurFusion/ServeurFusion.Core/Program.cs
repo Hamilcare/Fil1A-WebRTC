@@ -44,6 +44,7 @@ namespace ServeurFusion.Core
 
         static void InitializeWindows()
         {
+            HideConsole();
             WinApp = new Application();
             WinApp.Run(MainWindow = new MainWindow()); // note: blocking call
         }
