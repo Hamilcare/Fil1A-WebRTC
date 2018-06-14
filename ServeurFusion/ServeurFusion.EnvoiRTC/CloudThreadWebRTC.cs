@@ -41,25 +41,23 @@ namespace ServeurFusion.EnvoiRTC
             {
                 Cloud cloud = cloudThreadInfos.CloudToWebRTC.Take();
                 //On envoi les points par paquets de nbPointsParPaquet
-                int nbPointsParPaquet = 10;
+                int nbPointsParPaquet = 200;
                 int cpt1 = 0;
                 while(cpt1 + nbPointsParPaquet <= cloud.Points.Count)
                 {
                     var pointsToSend = cloud.Points.GetRange(cpt1, nbPointsParPaquet);
                     string formattedMsg = FormateMessage(cloud.Timestamp, pointsToSend);
-
-                    foreach (KeyValuePair<string, SpitfireRtc> peer in cloudThreadInfos.RTCPeerConnection)
+                    // Handle peer disconnected while sending data
+                    try
                     {
-                        // Handle peer disconnected while sending data
-                        try
+                        foreach (KeyValuePair<string, SpitfireRtc> peer in cloudThreadInfos.RTCPeerConnection)
                         {
                             peer.Value.DataChannelSendText("cloudChannel", formattedMsg);
                         }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine("Error, sending data to a disconnected peer : " + ex.Message);
-                        }
-                        
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Error, sending data to a disconnected peer : " + ex.Message);
                     }
                     cpt1 += nbPointsParPaquet;
                 }
@@ -69,20 +67,20 @@ namespace ServeurFusion.EnvoiRTC
                     var pointsToSend = cloud.Points.GetRange(cpt1, cloud.Points.Count - cpt1);
                     string formattedMsg = FormateMessage(cloud.Timestamp, pointsToSend);
 
-                    foreach (KeyValuePair<string, SpitfireRtc> peer in cloudThreadInfos.RTCPeerConnection)
+                    // Handle peer disconnected while sending data
+                    try
                     {
-                        // Handle peer disconnected while sending data
-                        try
+                        foreach (KeyValuePair<string, SpitfireRtc> peer in cloudThreadInfos.RTCPeerConnection)
                         {
                             peer.Value.DataChannelSendText("cloudChannel", formattedMsg);
                         }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine("Error, sending data to a disconnected peer : " + ex.Message);
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Error, sending data to a disconnected peer : " + ex.Message);
                     }
                 }
-                Console.WriteLine($"Frame send with {cloud.Points.Count} points. (Timestamp = {cloud.Timestamp})");
+                //Console.WriteLine($"Frame send with {cloud.Points.Count} points. (Timestamp = {cloud.Timestamp})");
             }
         }
 
@@ -92,9 +90,9 @@ namespace ServeurFusion.EnvoiRTC
             formattedMsg.Append(timestamp);
             foreach(var point in points)
             {
-                formattedMsg.Append($";{point.X};{point.Y};{point.Z};{point.R};{point.G};{point.B}".Replace(',', '.'));
+                    formattedMsg.Append($";{point.X};{point.Y};{point.Z};{point.R};{point.G};{point.B}".Replace(',', '.'));
             }
-
+            
             return formattedMsg.ToString();
         }
 
