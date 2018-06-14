@@ -46,13 +46,15 @@ namespace ServeurFusion.EnvoiRTC
                 while(cpt1 + nbPointsParPaquet <= cloud.Points.Count)
                 {
                     var pointsToSend = cloud.Points.GetRange(cpt1, nbPointsParPaquet);
-                    string formattedMsg = FormateMessage(cloud.Timestamp, pointsToSend);
+                    //string formattedMsg = FormateMessage(cloud.Timestamp, pointsToSend);
+                    byte[] formattedMsg = FormateMessageBytes(cloud.Timestamp, pointsToSend);
                     // Handle peer disconnected while sending data
                     try
                     {
                         foreach (KeyValuePair<string, SpitfireRtc> peer in cloudThreadInfos.RTCPeerConnection)
                         {
-                            peer.Value.DataChannelSendText("cloudChannel", formattedMsg);
+                            //peer.Value.DataChannelSendText("cloudChannel", formattedMsg);
+                            peer.Value.DataChannelSendData("cloudChannel", formattedMsg);
                         }
                     }
                     catch (Exception ex)
@@ -65,14 +67,16 @@ namespace ServeurFusion.EnvoiRTC
                 if(cpt1 < cloud.Points.Count)
                 {
                     var pointsToSend = cloud.Points.GetRange(cpt1, cloud.Points.Count - cpt1);
-                    string formattedMsg = FormateMessage(cloud.Timestamp, pointsToSend);
+                    //string formattedMsg = FormateMessage(cloud.Timestamp, pointsToSend);
+                    byte[] formattedMsg = FormateMessageBytes(cloud.Timestamp, pointsToSend);
 
                     // Handle peer disconnected while sending data
                     try
                     {
                         foreach (KeyValuePair<string, SpitfireRtc> peer in cloudThreadInfos.RTCPeerConnection)
                         {
-                            peer.Value.DataChannelSendText("cloudChannel", formattedMsg);
+                            //peer.Value.DataChannelSendText("cloudChannel", formattedMsg);
+                            peer.Value.DataChannelSendData("cloudChannel", formattedMsg);
                         }
                     }
                     catch (Exception ex)
@@ -94,6 +98,41 @@ namespace ServeurFusion.EnvoiRTC
             }
             
             return formattedMsg.ToString();
+        }
+
+        /// <summary>
+        /// Convert List of cloudPoints into array of bytes
+        /// </summary>
+        /// <param name="timestamp"></param>
+        /// <param name="points"></param>
+        /// <returns></returns>
+        private byte[] FormateMessageBytes(long timestamp, IList<CloudPoint> points)
+        {
+            //NbBytes : NbPoints * (3*4bytes (X,Y,Z)+ 3bytes (R,G,B)) + 8 bytes (timestamp)
+            int nbBytes = (points.Count * 15) + 8;
+            byte[] formattedArray = new byte[nbBytes];
+
+            int currentByte = 0;
+            byte[] byteTimestamp = BitConverter.GetBytes(timestamp);
+            Array.Copy(byteTimestamp, 0, formattedArray, currentByte, byteTimestamp.Length);
+            currentByte += byteTimestamp.Length;
+
+            foreach (var point in points)
+            {
+                byte[] x = BitConverter.GetBytes(point.X);
+                Array.Copy(x, 0, formattedArray, currentByte, x.Length);
+                currentByte += x.Length;
+
+                byte[] y = BitConverter.GetBytes(point.Y);
+                Array.Copy(y, 0, formattedArray, currentByte, y.Length);
+                currentByte += y.Length;
+
+                byte[] z = BitConverter.GetBytes(point.Z);
+                Array.Copy(z, 0, formattedArray, currentByte, z.Length);
+                currentByte += z.Length;
+            }
+
+            return formattedArray;
         }
 
         public void Start()
