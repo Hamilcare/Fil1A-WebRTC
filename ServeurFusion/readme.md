@@ -2,7 +2,9 @@
 ``
 Kinect UDP --> fusion --> WebRTC  
 ``  
+
 C# / .Net Framework 4.6.1  
+Le projet compile seulement en architecture x64 (64 bits) à cause de la dépendance à la bibliothèque WebRTC `Spitfire`
 
 ## Bibliothèques utilisées
 - WebRTC : [Spitfire](https://github.com/RainwayApp/spitfire) 
